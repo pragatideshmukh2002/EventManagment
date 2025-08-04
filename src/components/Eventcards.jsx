@@ -37,8 +37,15 @@ export default function EventCards() {
   const navigate = useNavigate();
 
   const handleCardClick = (type) => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user) {
+    localStorage.setItem("pendingEventType", type);
+    navigate("/login");
+  } else {
     navigate(`/event-form/${type}`);
-  };
+  }
+};
+
 
   return (
     <div id="eventcards-container" className="container py-5">

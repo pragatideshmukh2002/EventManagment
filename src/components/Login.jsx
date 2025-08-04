@@ -1,17 +1,29 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // ✅ Added for redirect
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function Login() {
   const [login, setLogin] = useState({ email: "", password: "" });
+  const navigate = useNavigate(); // ✅ useNavigate
 
+  // ✅ Login handler
   const handle = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.post("http://localhost:7777/api/users/login", login);
+      localStorage.setItem("user", JSON.stringify(res.data.user)); // ✅ Save login
       alert(res.data.message);
-    } catch {
-      alert("❌ Login failed");
+
+      const pendingEvent = localStorage.getItem("pendingEventType");
+      if (pendingEvent) {
+        localStorage.removeItem("pendingEventType");
+        navigate(`/event-form/${pendingEvent}`);
+      } else {
+        navigate("/events"); // 👈 Redirect anywhere you want after login
+      }
+    } catch (err) {
+      alert("Invalid credentials or server error.");
     }
   };
 
@@ -76,9 +88,7 @@ export default function Login() {
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
             }}
           >
-            <h2 className="mb-4 text-center fw-bold text-primary display-6">
-              Login
-            </h2>
+            <h2 className="mb-4 text-center fw-bold text-primary display-6">Login</h2>
 
             <form onSubmit={handle}>
               {/* Email Field */}
@@ -151,7 +161,6 @@ export default function Login() {
           to { opacity: 1; transform: scale(1); }
         }
 
-        /* Custom placeholder style */
         .custom-input::placeholder {
           font-size: 1rem;
           color: #888;
