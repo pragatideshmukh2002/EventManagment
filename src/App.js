@@ -3,10 +3,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./components/Home";
+
 import Register from "./components/Register";
 import Login from "./components/Login";
 import Eventcards from "./components/Eventcards"; // ✅ Match exact filename
 import EventForm from "./components/EventForm";
+import About from "./components/About";
 
 function App() {
   return (
@@ -16,6 +18,7 @@ function App() {
         <div className="flex-grow-1">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
             <Route path="/events" element={<Eventcards />} /> {/* ✅ Correct path */}
             <Route path="/event-form/:type" element={<EventForm />} />
             <Route path="/register" element={<Register />} />

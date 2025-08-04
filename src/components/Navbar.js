@@ -1,125 +1,111 @@
-import React from "react";
-import { Link } from "react-router-dom";
+// src/components/Navbar.js
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-function Navbar() {
+export default function Navbar() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const savedUser = JSON.parse(localStorage.getItem("user"));
+    if (savedUser) setUser(savedUser);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    navigate("/login");
+  };
+
+  const gradientStyle = {
+    background: "linear-gradient(90deg, #000000, #0d47a1, #000000)",
+    backgroundSize: "400% 400%",
+    animation: "gradientBG 15s ease infinite",
+  };
+
+  const styleSheet = `
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .nav-link {
+      color: white !important;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: #FFD700 !important;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.9);
+    }
+
+    .navbar-toggler-icon {
+      filter: invert(1);
+    }
+  `;
+
   return (
-    <nav
-      className="navbar navbar-expand-lg navbar-dark shadow-sm"
-      style={{
-        background: "linear-gradient(90deg, #000428, #004e92)", // Black + Blue gradient
-        padding: "12px 0",
-        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
-      }}
-    >
-      <div className="container">
-        {/* ✅ Logo */}
-        <Link className="navbar-brand d-flex align-items-center" to="/">
-          <img
-            src="/images/eventlogo.png"
-            alt="Logo"
-            style={{
-              width: "55px",
-              height: "55px",
-              borderRadius: "50%",
-              objectFit: "cover",
-              boxShadow: "0 4px 8px rgba(255, 215, 0, 0.5)",
-              marginRight: "10px",
-              transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = "scale(1.15)";
-              e.currentTarget.style.boxShadow =
-                "0 4px 15px rgba(255, 215, 0, 0.8)";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.boxShadow =
-                "0 4px 8px rgba(255, 215, 0, 0.5)";
-            }}
-          />
-          <span
-            style={{
-              fontSize: "22px",
-              fontWeight: "bold",
-              color: "white",
-              textShadow: "2px 2px 6px rgba(0,0,0,0.6)",
-            }}
+    <>
+      <style>{styleSheet}</style>
+
+      <nav className="navbar navbar-expand-lg fixed-top shadow" style={gradientStyle}>
+        <div className="container-fluid px-4">
+          <Link className="navbar-brand text-white fw-bold fs-3" to="/">
+            Event<span className="text-primary">Hub</span>
+          </Link>
+          <button
+            className="navbar-toggler bg-white"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
           >
-            Management
-          </span>
-        </Link>
+            <span className="navbar-toggler-icon"></span>
+          </button>
 
-        {/* ✅ Mobile Toggle */}
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        {/* ✅ Navbar Links */}
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto gap-3">
-            {["Home", "Events", "Register"].map((item, i) => (
-              <li key={i} className="nav-item">
-                <Link
-                  className="nav-link fw-semibold text-light"
-                  to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
-                  style={{
-                    fontSize: "17px",
-                    transition: "color 0.3s ease-in-out, text-shadow 0.3s ease-in-out",
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.color = "#FFD700";
-                    e.currentTarget.style.textShadow =
-                      "0 0 10px rgba(255,215,0,0.8)";
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.color = "#fff";
-                    e.currentTarget.style.textShadow = "none";
-                  }}
-                >
-                  {item}
-                </Link>
+          <div className="collapse navbar-collapse" id="navbarNav">
+            <ul className="navbar-nav ms-auto gap-3">
+              <li className="nav-item">
+                <Link className="nav-link" to="/">Home</Link>
               </li>
-            ))}
+              <li className="nav-item">
+                <Link className="nav-link" to="/about">About Us</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/events">Events</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/register">Register</Link>
+              </li>
 
-            <li className="nav-item">
-              <Link
-                className="btn fw-semibold px-3"
-                to="/login"
-                style={{
-                  borderRadius: "20px",
-                  backgroundColor: "#FFD700",
-                  color: "#000428",
-                  transition: "all 0.3s ease-in-out",
-                  fontWeight: "bold",
-                  boxShadow: "0 3px 6px rgba(0,0,0,0.3)",
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = "#fff";
-                  e.currentTarget.style.color = "#004e92";
-                  e.currentTarget.style.boxShadow =
-                    "0 4px 10px rgba(255,215,0,0.8)";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = "#FFD700";
-                  e.currentTarget.style.color = "#000428";
-                  e.currentTarget.style.boxShadow =
-                    "0 3px 6px rgba(0,0,0,0.3)";
-                }}
-              >
-                Login
-              </Link>
-            </li>
-          </ul>
+              {/* ✅ Conditionally show login or user profile */}
+              {user ? (
+                <>
+                  <li className="nav-item">
+                    <span className="nav-link text-warning">
+                      {user.email.split("@")[0]}
+                    </span>
+                  </li>
+                  <li className="nav-item">
+                    <button
+                      className="btn btn-sm btn-outline-light"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <li className="nav-item">
+                  <Link className="nav-link" to="/login">Login</Link>
+                </li>
+              )}
+            </ul>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   );
 }
-
-export default Navbar;
