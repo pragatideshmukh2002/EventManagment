@@ -46,7 +46,7 @@ const About = () => {
       <div className="container py-5">
         <div className="row align-items-center">
           <div className="col-md-6 mb-4">
-            <h2>About Us</h2>
+            <h2>ABOUT US</h2>
             <p>
               At <strong>EventHub</strong>, we specialize in transforming ideas
               into remarkable experiences. Whether it's a romantic wedding, an
@@ -117,11 +117,11 @@ const About = () => {
           <div className="row">
             <div className="col-md-4 mb-3">
               <h6>Email</h6>
-              <p>support@eventhub.com</p>
+              <p>pragatid2002@gmail.com</p>
             </div>
             <div className="col-md-4 mb-3">
               <h6>Phone</h6>
-              <p>+91 98765 43210</p>
+              <p>+91 9604096351</p>
             </div>
             <div className="col-md-4 mb-3">
               <h6>Address</h6>

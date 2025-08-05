@@ -1,7 +1,12 @@
 import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 
-export default function FarmBookingForm() {
+export default function BookingForm() {
+  const { eventId } = useParams();
+
   const [formData, setFormData] = useState({
+    name: "",
+    eventDate: "",
     package: "silver",
     guests: "",
     totalAmount: 0,
@@ -18,7 +23,7 @@ export default function FarmBookingForm() {
     platinum: { base: 150000, extra: 85000 },
   };
 
-  // ✅ Slab Calculation Based on Package
+  // ✅ Slab-based total + final + balance calculation
   const calculateAmounts = (updatedData) => {
     const guests = parseInt(updatedData.guests || 0);
     const advance = parseFloat(updatedData.advance || 0);
@@ -28,7 +33,6 @@ export default function FarmBookingForm() {
 
     if (guests > 0) {
       const { base, extra } = packageRates[selectedPackage];
-
       if (guests <= 200) {
         totalAmount = base;
       } else {
@@ -48,10 +52,10 @@ export default function FarmBookingForm() {
     };
   };
 
+  // ✅ Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let updatedData = { ...formData, [name]: value };
-
+    const updatedData = { ...formData, [name]: value };
     const amounts = calculateAmounts(updatedData);
     setFormData({
       ...updatedData,
@@ -59,25 +63,58 @@ export default function FarmBookingForm() {
     });
   };
 
+  // ✅ Submit Booking
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (parseInt(formData.guests) < 100) {
       alert("⚠ Minimum 100 guests are required!");
       return;
     }
-    alert("✅ Booking Submitted Successfully!");
+
+    alert(`✅ Event ${eventId} booked successfully!`);
+    console.log("Booking Data:", formData);
+    // You can later send this data to your Spring Boot API
   };
 
   return (
     <div className="container py-5">
-      <h2 className="text-center mb-4 fw-bold">🏡 The Iconic Farm Booking</h2>
+      <h2 className="text-center mb-4 fw-bold">
+        🎉 Booking for Event #{eventId}
+      </h2>
 
       <form
         onSubmit={handleSubmit}
         className="p-4 shadow-lg rounded-4 bg-white mx-auto"
         style={{ maxWidth: "700px" }}
       >
-        {/* ✅ Package Selection */}
+        {/* Name */}
+        <div className="mb-3">
+          <label className="fw-semibold">Your Name</label>
+          <input
+            name="name"
+            type="text"
+            className="form-control"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* Date */}
+        <div className="mb-3">
+          <label className="fw-semibold">Event Date</label>
+          <input
+            name="eventDate"
+            type="date"
+            className="form-control"
+            value={formData.eventDate}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* Package */}
         <div className="mb-3">
           <label className="fw-semibold">Select Package</label>
           <select
@@ -92,7 +129,7 @@ export default function FarmBookingForm() {
           </select>
         </div>
 
-        {/* ✅ Number of Guests */}
+        {/* Guests */}
         <div className="mb-3">
           <label className="fw-semibold">Number of Guests (Min 100)</label>
           <input
@@ -108,7 +145,7 @@ export default function FarmBookingForm() {
           )}
         </div>
 
-        {/* ✅ Advance Payment */}
+        {/* Advance */}
         <div className="mb-3">
           <label className="fw-semibold">Advance Payment (₹)</label>
           <input
@@ -120,7 +157,7 @@ export default function FarmBookingForm() {
           />
         </div>
 
-        {/* ✅ Payment Summary */}
+        {/* Payment Summary */}
         <div className="p-3 bg-light rounded-3 my-3">
           <h5 className="fw-bold">💰 Payment Summary</h5>
           <p>

@@ -36,15 +36,26 @@ const events = [
 export default function EventCards() {
   const navigate = useNavigate();
 
-  const handleCardClick = (type) => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (!user) {
+const handleCardClick = (type) => {
+  try {
+    const userRaw = localStorage.getItem("user");
+    const user = userRaw && userRaw !== "undefined" ? JSON.parse(userRaw) : null;
+
+    if (!user) {
+      localStorage.setItem("pendingEventType", type);
+      navigate("/login");
+    } else {
+      navigate(`/event-form/${type}`);
+    }
+  } catch (error) {
+    console.error("Invalid JSON in localStorage for 'user':", error);
+    localStorage.removeItem("user"); // remove the invalid data
     localStorage.setItem("pendingEventType", type);
     navigate("/login");
-  } else {
-    navigate(`/event-form/${type}`);
   }
 };
+
+
 
 
   return (
@@ -53,7 +64,7 @@ export default function EventCards() {
     <h1
   id="eventcards-heading"
   className="text-center mb-5 fw-bold display-5 animated-gradient-text"
-  style={{ marginTop: "100px" }}  // 🔹 This line adds space from top
+   // 🔹 This line adds space from top
 >
   Choose Your Event
 </h1>

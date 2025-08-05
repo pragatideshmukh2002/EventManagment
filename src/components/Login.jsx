@@ -99,6 +99,7 @@ export default function Login() {
                 <input
                   id="login-email"
                   type="email"
+                  autoComplete="off"
                   className="form-control form-control-lg custom-input"
                   placeholder="Enter your email"
                   value={login.email}
@@ -115,6 +116,7 @@ export default function Login() {
                 <input
                   id="login-password"
                   type="password"
+                  autoComplete="new-password"
                   className="form-control form-control-lg custom-input"
                   placeholder="Enter your password"
                   value={login.password}

@@ -69,7 +69,7 @@ function Home() {
         {/* 🔹 About Us Section */}
         <section id="about-us" className="py-5 mt-3 bg-white">
           <div className="container">
-            <h2 className="text-center mb-4">About Us</h2>
+            <h2 className="text-center mb-4">ABOUT US</h2>
             <div className="row align-items-center">
               <div className="col-md-6 mb-4 mb-md-0">
                 <img

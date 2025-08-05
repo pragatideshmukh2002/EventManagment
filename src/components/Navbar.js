@@ -1,20 +1,16 @@
 // src/components/Navbar.js
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const savedUser = JSON.parse(localStorage.getItem("user"));
-    if (savedUser) setUser(savedUser);
-  }, []);
+  const { user, logout } = useContext(AuthContext);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
+    logout();
     navigate("/login");
   };
 
@@ -22,6 +18,7 @@ export default function Navbar() {
     background: "linear-gradient(90deg, #000000, #0d47a1, #000000)",
     backgroundSize: "400% 400%",
     animation: "gradientBG 15s ease infinite",
+    zIndex: "1050",
   };
 
   const styleSheet = `
@@ -45,28 +42,40 @@ export default function Navbar() {
     .navbar-toggler-icon {
       filter: invert(1);
     }
+
+    body {
+      padding-top: 80px;
+    }
+
+    .nav-profile {
+      color: #FFD700 !important;
+      font-weight: bold;
+      text-transform: capitalize;
+    }
   `;
 
   return (
     <>
       <style>{styleSheet}</style>
-
       <nav className="navbar navbar-expand-lg fixed-top shadow" style={gradientStyle}>
         <div className="container-fluid px-4">
           <Link className="navbar-brand text-white fw-bold fs-3" to="/">
-            Event<span className="text-primary">Hub</span>
+            Event<span className="text-primary">Management</span>
           </Link>
           <button
             className="navbar-toggler bg-white"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
           >
             <span className="navbar-toggler-icon"></span>
           </button>
 
           <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto gap-3">
+            <ul className="navbar-nav ms-auto gap-3 align-items-center">
               <li className="nav-item">
                 <Link className="nav-link" to="/">Home</Link>
               </li>
@@ -76,16 +85,15 @@ export default function Navbar() {
               <li className="nav-item">
                 <Link className="nav-link" to="/events">Events</Link>
               </li>
-              <li className="nav-item">
+              {/* <li className="nav-item">
                 <Link className="nav-link" to="/register">Register</Link>
-              </li>
+              </li> */}
 
-              {/* ✅ Conditionally show login or user profile */}
               {user ? (
                 <>
                   <li className="nav-item">
-                    <span className="nav-link text-warning">
-                      {user.email.split("@")[0]}
+                    <span className="nav-link nav-profile">
+                      {user.email?.split("@")[0]}
                     </span>
                   </li>
                   <li className="nav-item">
