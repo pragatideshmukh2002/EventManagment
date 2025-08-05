@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "../services/api";
 
 export default function Register() {
-  const navigate = useNavigate(); // ✅ Added for navigation after registration
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -15,10 +15,12 @@ export default function Register() {
   });
 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     let newErrors = {};
-    if (!formData.firstName.trim()) newErrors.firstName = "First Name is required";
+    if (!formData.firstName.trim())
+      newErrors.firstName = "First Name is required";
     if (!formData.lastName.trim()) newErrors.lastName = "Last Name is required";
     if (!/^[0-9]{10}$/.test(formData.contactNumber))
       newErrors.contactNumber = "Enter a valid 10-digit number";
@@ -36,12 +38,17 @@ export default function Register() {
     e.preventDefault();
     if (!validate()) return;
 
+    setLoading(true);
     try {
-      await axios.post("http://localhost:7777/api/users/register", formData);
+      const response = await registerUser(formData);
       alert("✅ Registered Successfully!");
-      navigate("/login"); // ✅ Navigate to login page after success
-    } catch {
-      alert("❌ Registration Failed");
+      navigate("/login");
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || "❌ Registration Failed";
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,7 +56,9 @@ export default function Register() {
     <div
       className="container-fluid d-flex justify-content-center align-items-center position-relative"
       style={{
-        backgroundImage: `url(${process.env.PUBLIC_URL + "/images/registrationbackground.jpg"})`,
+        backgroundImage: `url(${
+          process.env.PUBLIC_URL + "/images/registrationbackground.jpg"
+        })`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         minHeight: "100vh",
@@ -85,7 +94,10 @@ export default function Register() {
               animation: "float 3s ease-in-out infinite",
             }}
           />
-          <p className="text-center fw-bold mt-3 px-3" style={{ fontSize: "16px" }}>
+          <p
+            className="text-center fw-bold mt-3 px-3"
+            style={{ fontSize: "16px" }}
+          >
             Join our Event Platform & manage bookings hassle-free!
           </p>
         </div>
@@ -107,7 +119,11 @@ export default function Register() {
             {[
               { id: "firstName", type: "text", placeholder: "First Name" },
               { id: "lastName", type: "text", placeholder: "Last Name" },
-              { id: "contactNumber", type: "text", placeholder: "Contact Number" },
+              {
+                id: "contactNumber",
+                type: "text",
+                placeholder: "Contact Number",
+              },
               { id: "email", type: "email", placeholder: "Email" },
             ].map((field) => (
               <div className="mb-2" key={field.id}>
@@ -118,8 +134,11 @@ export default function Register() {
                   onChange={(e) =>
                     setFormData({ ...formData, [field.id]: e.target.value })
                   }
-                  className={`form-control rounded-3 ${errors[field.id] ? "is-invalid" : ""}`}
+                  className={`form-control rounded-3 ${
+                    errors[field.id] ? "is-invalid" : ""
+                  }`}
                   style={{ padding: "10px", fontSize: "15px" }}
+                  disabled={loading}
                 />
                 {errors[field.id] && (
                   <div className="invalid-feedback">{errors[field.id]}</div>
@@ -133,11 +152,18 @@ export default function Register() {
                 placeholder="Address"
                 rows="2"
                 value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className={`form-control rounded-3 ${errors.address ? "is-invalid" : ""}`}
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
+                className={`form-control rounded-3 ${
+                  errors.address ? "is-invalid" : ""
+                }`}
                 style={{ padding: "10px", fontSize: "15px" }}
+                disabled={loading}
               ></textarea>
-              {errors.address && <div className="invalid-feedback">{errors.address}</div>}
+              {errors.address && (
+                <div className="invalid-feedback">{errors.address}</div>
+              )}
             </div>
 
             {/* Password */}
@@ -146,11 +172,18 @@ export default function Register() {
                 type="password"
                 placeholder="Password"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className={`form-control rounded-3 ${errors.password ? "is-invalid" : ""}`}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+                className={`form-control rounded-3 ${
+                  errors.password ? "is-invalid" : ""
+                }`}
                 style={{ padding: "10px", fontSize: "15px" }}
+                disabled={loading}
               />
-              {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+              {errors.password && (
+                <div className="invalid-feedback">{errors.password}</div>
+              )}
             </div>
 
             {/* Submit Button */}
@@ -165,6 +198,7 @@ export default function Register() {
                   transition: "0.3s ease-in-out",
                 }}
                 onMouseOver={(e) =>
+                  !loading &&
                   (e.target.style.background =
                     "linear-gradient(135deg, #00f2fe, #4facfe)")
                 }
@@ -172,8 +206,9 @@ export default function Register() {
                   (e.target.style.background =
                     "linear-gradient(135deg, #4facfe, #00f2fe)")
                 }
+                disabled={loading}
               >
-                Submit
+                {loading ? "Registering..." : "Submit"}
               </button>
             </div>
 
