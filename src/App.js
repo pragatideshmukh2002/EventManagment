@@ -1,33 +1,50 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./components/Home";
-
 import Register from "./components/Register";
 import Login from "./components/Login";
-import Eventcards from "./components/Eventcards"; // ✅ Match exact filename
+import Eventcards from "./components/Eventcards";
 import EventForm from "./components/EventForm";
 import About from "./components/About";
 
 function App() {
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <BrowserRouter>
-        <Navbar />
-        <div className="flex-grow-1">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/events" element={<Eventcards />} /> {/* ✅ Correct path */}
-            <Route path="/event-form/:type" element={<EventForm />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-          </Routes>
-        </div>
-        {/* <Footer /> */}
-      </BrowserRouter>
-    </div>
+    <AuthProvider>
+      <div className="d-flex flex-column min-vh-100">
+        <BrowserRouter>
+          <Navbar />
+          <div className="flex-grow-1">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route
+                path="/events"
+                element={
+                  <ProtectedRoute>
+                    <Eventcards />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/event-form/:type"
+                element={
+                  <ProtectedRoute>
+                    <EventForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<Login />} />
+            </Routes>
+          </div>
+          {/* <Footer /> */}
+        </BrowserRouter>
+      </div>
+    </AuthProvider>
   );
 }
 

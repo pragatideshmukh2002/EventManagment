@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const events = [
@@ -35,28 +36,16 @@ const events = [
 
 export default function EventCards() {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
-const handleCardClick = (type) => {
-  try {
-    const userRaw = localStorage.getItem("user");
-    const user = userRaw && userRaw !== "undefined" ? JSON.parse(userRaw) : null;
-
+  const handleCardClick = (type) => {
     if (!user) {
       localStorage.setItem("pendingEventType", type);
       navigate("/login");
     } else {
       navigate(`/event-form/${type}`);
     }
-  } catch (error) {
-    console.error("Invalid JSON in localStorage for 'user':", error);
-    localStorage.removeItem("user"); // remove the invalid data
-    localStorage.setItem("pendingEventType", type);
-    navigate("/login");
-  }
-};
-
-
-
+  };
 
   return (
     <div id="eventcards-container" className="container py-5">

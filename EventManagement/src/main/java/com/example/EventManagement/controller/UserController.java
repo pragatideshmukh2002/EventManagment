@@ -3,37 +3,59 @@ package com.example.EventManagement.controller;
 import com.example.EventManagement.entity.User;
 import com.example.EventManagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController // Marks this class as a REST controller
-@RequestMapping("/api/users") // Base path for all user-related endpoints
-@CrossOrigin(origins = "http://localhost:3000") // Allows requests from React frontend running on localhost:3000
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/users")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
-    @Autowired // Automatically injects the UserService bean
+    @Autowired
     private UserService userService;
 
-    @PostMapping("/register") // Handles POST requests to /api/users/register
-    public String register(@RequestBody User user) {
-        userService.register(user); // Calls the service to save the user
-        return "User registered successfully"; // Sends success message
-    }
-
-    @PostMapping("/login") // Handles POST requests to /api/users/login
-    public Object login(@RequestBody User user) {
-        String email = user.getEmail();       // Extracts email from request body
-        String password = user.getPassword(); // Extracts password from request body
-
-        User u = userService.login(email, password); // Calls service to validate credentials
-        if (u == null) {
-            return "Invalid credentials"; // If user not found or password mismatch
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody User user) {
+        try {
+            User registeredUser = userService.register(user);
+            return ResponseEntity.ok(Map.of("message", "User registered successfully", "user", registeredUser));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
-
-        // Returns anonymous object with message and user data
-        return new Object() {
-            public final String message = "Login successful"; // Login status message
-            public final User user = u; // Authenticated user info
-        };
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody User user) {
+        try {
+            String email = user.getEmail();
+            String password = user.getPassword();
+
+            Map<String, Object> response = userService.login(email, password);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/validate-token")
+    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authorization) {
+        try {
+            if (authorization != null && authorization.startsWith("Bearer ")) {
+                String token = authorization.substring(7);
+                boolean isValid = userService.validateToken(token);
+                
+                if (isValid) {
+                    return ResponseEntity.ok(Map.of("message", "Token is valid"));
+                } else {
+                    return ResponseEntity.status(401).body(Map.of("message", "Invalid token"));
+                }
+            } else {
+                return ResponseEntity.status(401).body(Map.of("message", "No token provided"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("message", "Token validation failed"));
+        }
+    }
 }

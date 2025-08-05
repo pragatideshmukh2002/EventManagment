@@ -1,29 +1,49 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom"; // ✅ Added for redirect
+import React, { useState, useContext } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { loginUser } from "../services/api";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function Login() {
   const [login, setLogin] = useState({ email: "", password: "" });
-  const navigate = useNavigate(); // ✅ useNavigate
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login: authLogin } = useContext(AuthContext);
 
-  // ✅ Login handler
+  // Get the page user was trying to access before login
+  const from = location.state?.from?.pathname || "/events";
+
   const handle = async (e) => {
     e.preventDefault();
-    try {
-      const res = await axios.post("http://localhost:7777/api/users/login", login);
-      localStorage.setItem("user", JSON.stringify(res.data.user)); // ✅ Save login
-      alert(res.data.message);
+    setLoading(true);
 
-      const pendingEvent = localStorage.getItem("pendingEventType");
-      if (pendingEvent) {
-        localStorage.removeItem("pendingEventType");
-        navigate(`/event-form/${pendingEvent}`);
+    try {
+      const res = await loginUser(login);
+
+      if (res.data.token) {
+        // Use the AuthContext login function to store user and token
+        authLogin(res.data.user, res.data.token);
+
+        // Check if there was a pending event type
+        const pendingEvent = localStorage.getItem("pendingEventType");
+        if (pendingEvent) {
+          localStorage.removeItem("pendingEventType");
+          navigate(`/event-form/${pendingEvent}`);
+        } else {
+          // Redirect to the page user was trying to access, or events page
+          navigate(from, { replace: true });
+        }
       } else {
-        navigate("/events"); // 👈 Redirect anywhere you want after login
+        alert("Login failed. Please check your credentials.");
       }
     } catch (err) {
-      alert("Invalid credentials or server error.");
+      console.error("Login error:", err);
+      alert(
+        err.response?.data?.message || "Invalid credentials or server error."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -32,7 +52,8 @@ export default function Login() {
       id="login-wrapper"
       className="d-flex justify-content-center align-items-center min-vh-100 px-3 position-relative"
       style={{
-        background: "url('/images/loginbackground.jpg') no-repeat center center/cover",
+        background:
+          "url('/images/loginbackground.jpg') no-repeat center center/cover",
       }}
     >
       {/* ✅ Blur Overlay */}
@@ -88,12 +109,17 @@ export default function Login() {
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
             }}
           >
-            <h2 className="mb-4 text-center fw-bold text-primary display-6">Login</h2>
+            <h2 className="mb-4 text-center fw-bold text-primary display-6">
+              Login
+            </h2>
 
             <form onSubmit={handle}>
               {/* Email Field */}
               <div className="mb-3">
-                <label htmlFor="login-email" className="form-label fw-semibold fs-5">
+                <label
+                  htmlFor="login-email"
+                  className="form-label fw-semibold fs-5"
+                >
                   Email Address
                 </label>
                 <input
@@ -103,14 +129,20 @@ export default function Login() {
                   className="form-control form-control-lg custom-input"
                   placeholder="Enter your email"
                   value={login.email}
-                  onChange={(e) => setLogin({ ...login, email: e.target.value })}
+                  onChange={(e) =>
+                    setLogin({ ...login, email: e.target.value })
+                  }
                   required
+                  disabled={loading}
                 />
               </div>
 
               {/* Password Field */}
               <div className="mb-3">
-                <label htmlFor="login-password" className="form-label fw-semibold fs-5">
+                <label
+                  htmlFor="login-password"
+                  className="form-label fw-semibold fs-5"
+                >
                   Password
                 </label>
                 <input
@@ -120,8 +152,11 @@ export default function Login() {
                   className="form-control form-control-lg custom-input"
                   placeholder="Enter your password"
                   value={login.password}
-                  onChange={(e) => setLogin({ ...login, password: e.target.value })}
+                  onChange={(e) =>
+                    setLogin({ ...login, password: e.target.value })
+                  }
                   required
+                  disabled={loading}
                 />
               </div>
 
@@ -135,16 +170,22 @@ export default function Login() {
                   border: "none",
                   transition: "transform 0.3s ease",
                 }}
-                onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
+                onMouseEnter={(e) =>
+                  !loading && (e.target.style.transform = "scale(1.05)")
+                }
                 onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
+                disabled={loading}
               >
-                Login
+                {loading ? "Logging in..." : "Login"}
               </button>
             </form>
 
             <p className="text-center mt-3 mb-0 fs-6">
               Don't have an account?{" "}
-              <a href="/register" className="text-primary fw-semibold text-decoration-none">
+              <a
+                href="/register"
+                className="text-primary fw-semibold text-decoration-none"
+              >
                 Create an account
               </a>
             </p>
