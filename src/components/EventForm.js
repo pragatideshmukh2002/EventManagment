@@ -1,190 +1,10 @@
-// import React, { useState } from "react";
-// import { useParams } from "react-router-dom";
-
-// export default function BookingForm() {
-//   const { eventId } = useParams();
-
-//   const [formData, setFormData] = useState({
-//     name: "",
-//     eventDate: "",
-//     package: "silver",
-//     guests: "",
-//     totalAmount: 0,
-//     finalAmount: 0,
-//     advance: 0,
-//     balance: 0,
-//   });
-
-//   const TAX = 18;
-
-//   const packageRates = {
-//     silver: { base: 100000, extra: 50000 },
-//     gold: { base: 125000, extra: 70000 },
-//     platinum: { base: 150000, extra: 85000 },
-//   };
-
-//   // ✅ Slab-based total + final + balance calculation
-//   const calculateAmounts = (updatedData) => {
-//     const guests = parseInt(updatedData.guests || 0);
-//     const advance = parseFloat(updatedData.advance || 0);
-//     const selectedPackage = updatedData.package;
-
-//     let totalAmount = 0;
-
-//     if (guests > 0) {
-//       const { base, extra } = packageRates[selectedPackage];
-//       if (guests <= 200) {
-//         totalAmount = base;
-//       } else {
-//         const extraGuests = guests - 200;
-//         const extraSlabs = Math.ceil(extraGuests / 200);
-//         totalAmount = base + extraSlabs * extra;
-//       }
-//     }
-
-//     const finalAmount = totalAmount + (totalAmount * TAX) / 100;
-//     const balance = finalAmount - advance;
-
-//     return {
-//       totalAmount: totalAmount.toFixed(2),
-//       finalAmount: finalAmount.toFixed(2),
-//       balance: balance.toFixed(2),
-//     };
-//   };
-
-//   // ✅ Handle input changes
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     const updatedData = { ...formData, [name]: value };
-//     const amounts = calculateAmounts(updatedData);
-//     setFormData({
-//       ...updatedData,
-//       ...amounts,
-//     });
-//   };
-
-//   // ✅ Submit Booking
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-
-//     if (parseInt(formData.guests) < 100) {
-//       alert("⚠ Minimum 100 guests are required!");
-//       return;
-//     }
-
-//     alert(`✅ Event ${eventId} booked successfully!`);
-//     console.log("Booking Data:", formData);
-//     // You can later send this data to your Spring Boot API
-//   };
-
-//   return (
-//     <div className="container py-5">
-//       <h2 className="text-center mb-4 fw-bold">
-//         🎉 Booking for Event #{eventId}
-//       </h2>
-
-//       <form
-//         onSubmit={handleSubmit}
-//         className="p-4 shadow-lg rounded-4 bg-white mx-auto"
-//         style={{ maxWidth: "700px" }}
-//       >
-//         {/* Name */}
-//         <div className="mb-3">
-//           <label className="fw-semibold">Your Name</label>
-//           <input
-//             name="name"
-//             type="text"
-//             className="form-control"
-//             value={formData.name}
-//             onChange={handleChange}
-//             required
-//           />
-//         </div>
-
-//         {/* Date */}
-//         <div className="mb-3">
-//           <label className="fw-semibold">Event Date</label>
-//           <input
-//             name="eventDate"
-//             type="date"
-//             className="form-control"
-//             value={formData.eventDate}
-//             onChange={handleChange}
-//             required
-//           />
-//         </div>
-
-//         {/* Package */}
-//         <div className="mb-3">
-//           <label className="fw-semibold">Select Package</label>
-//           <select
-//             name="package"
-//             className="form-control"
-//             value={formData.package}
-//             onChange={handleChange}
-//           >
-//             <option value="silver">Silver</option>
-//             <option value="gold">Gold</option>
-//             <option value="platinum">Platinum</option>
-//           </select>
-//         </div>
-
-//         {/* Guests */}
-//         <div className="mb-3">
-//           <label className="fw-semibold">Number of Guests (Min 100)</label>
-//           <input
-//             type="number"
-//             name="guests"
-//             className="form-control"
-//             value={formData.guests}
-//             onChange={handleChange}
-//             required
-//           />
-//           {formData.guests && parseInt(formData.guests) < 100 && (
-//             <p className="text-danger mt-1">⚠ Minimum 100 guests required!</p>
-//           )}
-//         </div>
-
-//         {/* Advance */}
-//         <div className="mb-3">
-//           <label className="fw-semibold">Advance Payment (₹)</label>
-//           <input
-//             type="number"
-//             name="advance"
-//             className="form-control"
-//             value={formData.advance}
-//             onChange={handleChange}
-//           />
-//         </div>
-
-//         {/* Payment Summary */}
-//         <div className="p-3 bg-light rounded-3 my-3">
-//           <h5 className="fw-bold">💰 Payment Summary</h5>
-//           <p>
-//             <strong>Selected Package:</strong>{" "}
-//             {formData.package.charAt(0).toUpperCase() +
-//               formData.package.slice(1)}
-//           </p>
-//           <p>
-//             <strong>Total Amount (Before Tax):</strong> ₹{formData.totalAmount}
-//           </p>
-//           <p>+ Tax (18%)</p>
-//           <p className="fw-bold text-primary">
-//             Final Amount: ₹{formData.finalAmount}
-//           </p>
-//           <p>Advance Paid: ₹{formData.advance}</p>
-//           <p className="fw-bold text-danger">Balance: ₹{formData.balance}</p>
-//         </div>
-
-//         <button className="btn btn-success w-100 fw-bold">
-//           ✅ Confirm Booking
-//         </button>
-//       </form>
-//     </div>
-//   );
-// }
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import {
+  createEvent,
+  checkDateAvailability,
+  calculateEventAmounts,
+} from "../services/api";
 
 export default function BookingForm() {
   const { eventId } = useParams();
@@ -207,6 +27,15 @@ export default function BookingForm() {
     balance: 0,
   });
 
+  const [dateAvailability, setDateAvailability] = useState({
+    checked: false,
+    available: true,
+    message: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+
   const TAX = 18;
 
   const packageRates = {
@@ -215,57 +44,77 @@ export default function BookingForm() {
     platinum: { base: 200000, extra: 25000 },
   };
 
-  const calculateAmounts = () => {
-    const guests = parseInt(formData.guests || 0);
-    const advance = parseFloat(formData.advance || 0);
-    const selectedPackage = formData.package;
+  // Check date availability when date changes
+  useEffect(() => {
+    if (formData.eventDate) {
+      checkDateAvailabilityHandler(formData.eventDate);
+    }
+  }, [formData.eventDate]);
 
-    let totalAmount = 0;
+  const checkDateAvailabilityHandler = async (date) => {
+    if (!date) return;
 
-    // Package base + slab logic
-    if (guests > 0) {
-      const { base, extra } = packageRates[selectedPackage];
-      if (guests <= 200) {
-        totalAmount = base;
-      } else {
-        const extraGuests = guests - 200;
-        const extraSlabs = Math.ceil(extraGuests / 200);
-        totalAmount = base + extraSlabs * extra;
-      }
+    setLoading(true);
+    try {
+      const response = await checkDateAvailability(date);
+      const result = response.data;
+
+      setDateAvailability({
+        checked: true,
+        available: result.available,
+        message: result.message,
+      });
+    } catch (error) {
+      console.error("Error checking date availability:", error);
+      setDateAvailability({
+        checked: true,
+        available: false,
+        message: "Error checking date availability. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateAmounts = async () => {
+    if (!formData.guests || formData.guests < 100) {
+      alert("⚠ Minimum 100 guests are required!");
+      return;
     }
 
-    // Catering calculation
-    let cateringChargePerGuest = 0;
-    if (formData.cateringRequired === "yes") {
-      if (formData.cateringType === "veg") {
-        cateringChargePerGuest =
-          formData.menuType === "basic"
-            ? 600
-            : formData.menuType === "full"
-            ? 900
-            : 0;
-      } else if (formData.cateringType === "nonveg") {
-        cateringChargePerGuest =
-          formData.menuType === "basic"
-            ? 800
-            : formData.menuType === "full"
-            ? 1200
-            : 0;
-      }
+    setLoading(true);
+    try {
+      const eventData = {
+        customerName: formData.name,
+        eventDate: formData.eventDate,
+        packageType: formData.package,
+        numberOfGuests: parseInt(formData.guests),
+        venueName: formData.venueName,
+        venueAddress: formData.venueAddress,
+        decoration: formData.decoration,
+        cateringRequired: formData.cateringRequired,
+        cateringType: formData.cateringType,
+        menuType: formData.menuType,
+        advanceAmount: parseFloat(formData.advance || 0),
+      };
+
+      const response = await calculateEventAmounts(eventData);
+      const calculatedEvent = response.data.event;
+
+      setFormData((prev) => ({
+        ...prev,
+        totalAmount: calculatedEvent.totalAmount,
+        finalAmount: calculatedEvent.finalAmount,
+        balance: calculatedEvent.balanceAmount,
+      }));
+
+      alert("✅ Amount calculated successfully!");
+    } catch (error) {
+      console.error("Error calculating amounts:", error);
+      alert("❌ Error calculating amounts. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    const cateringCharges = guests * cateringChargePerGuest;
-    totalAmount += cateringCharges;
-
-    const finalAmount = totalAmount + (totalAmount * TAX) / 100;
-    const balance = finalAmount - advance;
-
-    setFormData((prevData) => ({
-      ...prevData,
-      totalAmount: totalAmount.toFixed(2),
-      finalAmount: finalAmount.toFixed(2),
-      balance: balance.toFixed(2),
-    }));
   };
 
   const handleChange = (e) => {
@@ -278,7 +127,7 @@ export default function BookingForm() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (parseInt(formData.guests) < 100) {
@@ -291,8 +140,71 @@ export default function BookingForm() {
       return;
     }
 
-    alert(`✅ Event ${eventId} booked successfully!`);
-    console.log("Booking Data:", formData);
+    if (!dateAvailability.available) {
+      alert("⚠ Selected date is not available. Please choose another date.");
+      return;
+    }
+
+    setSubmitLoading(true);
+    try {
+      const eventData = {
+        customerName: formData.name,
+        eventDate: formData.eventDate,
+        packageType: formData.package,
+        numberOfGuests: parseInt(formData.guests),
+        venueName: formData.venueName,
+        venueAddress: formData.venueAddress,
+        decoration: formData.decoration,
+        cateringRequired: formData.cateringRequired,
+        cateringType: formData.cateringType,
+        menuType: formData.menuType,
+        advanceAmount: parseFloat(formData.advance || 0),
+        totalAmount: parseFloat(formData.totalAmount || 0),
+        finalAmount: parseFloat(formData.finalAmount || 0),
+        balanceAmount: parseFloat(formData.balance || 0),
+      };
+
+      const response = await createEvent(eventData);
+
+      if (response.data.success) {
+        alert(`✅ Event ${eventId} booked successfully!`);
+        console.log("Booking Data:", response.data.event);
+        // Reset form or redirect
+        setFormData({
+          name: "",
+          eventDate: "",
+          package: "silver",
+          guests: "",
+          venueName: "",
+          venueAddress: "",
+          decoration: "Traditional",
+          cateringRequired: "no",
+          cateringType: "",
+          menuType: "",
+          acceptTerms: false,
+          totalAmount: 0,
+          finalAmount: 0,
+          advance: 0,
+          balance: 0,
+        });
+        setDateAvailability({
+          checked: false,
+          available: true,
+          message: "",
+        });
+      } else {
+        alert(`❌ ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error("Error creating event:", error);
+      if (error.response?.data?.message) {
+        alert(`❌ ${error.response.data.message}`);
+      } else {
+        alert("❌ Error creating event. Please try again.");
+      }
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   return (
@@ -325,11 +237,31 @@ export default function BookingForm() {
           <input
             name="eventDate"
             type="date"
-            className="form-control"
+            className={`form-control ${
+              dateAvailability.checked && !dateAvailability.available
+                ? "is-invalid"
+                : ""
+            }`}
             value={formData.eventDate}
             onChange={handleChange}
             required
           />
+          {loading && (
+            <div className="mt-1">
+              <small className="text-muted">
+                Checking date availability...
+              </small>
+            </div>
+          )}
+          {dateAvailability.checked && (
+            <div
+              className={`mt-1 ${
+                dateAvailability.available ? "text-success" : "text-danger"
+              }`}
+            >
+              <small>{dateAvailability.message}</small>
+            </div>
+          )}
         </div>
 
         {/* Guests */}
@@ -343,6 +275,9 @@ export default function BookingForm() {
             onChange={handleChange}
             required
           />
+          {formData.guests && parseInt(formData.guests) < 100 && (
+            <p className="text-danger mt-1">⚠ Minimum 100 guests required!</p>
+          )}
         </div>
 
         {/* Package */}
@@ -484,8 +419,9 @@ export default function BookingForm() {
             type="button"
             className="btn btn-primary w-100 fw-bold"
             onClick={calculateAmounts}
+            disabled={loading}
           >
-            💵 Calculate Amount
+            {loading ? "⏳ Calculating..." : "💵 Calculate Amount"}
           </button>
         </div>
 
@@ -522,8 +458,11 @@ export default function BookingForm() {
           <p className="fw-bold text-danger">Balance: ₹{formData.balance}</p>
         </div>
 
-        <button className="btn btn-success w-100 fw-bold">
-          ✅ Confirm Booking
+        <button
+          className="btn btn-success w-100 fw-bold"
+          disabled={submitLoading || !dateAvailability.available}
+        >
+          {submitLoading ? "⏳ Processing..." : "✅ Confirm Booking"}
         </button>
       </form>
     </div>

@@ -57,7 +57,10 @@ export default function Navbar() {
   return (
     <>
       <style>{styleSheet}</style>
-      <nav className="navbar navbar-expand-lg fixed-top shadow" style={gradientStyle}>
+      <nav
+        className="navbar navbar-expand-lg fixed-top shadow"
+        style={gradientStyle}
+      >
         <div className="container-fluid px-4">
           <Link className="navbar-brand text-white fw-bold fs-3" to="/">
             Event<span className="text-primary">Management</span>
@@ -77,13 +80,19 @@ export default function Navbar() {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto gap-3 align-items-center">
               <li className="nav-item">
-                <Link className="nav-link" to="/">Home</Link>
+                <Link className="nav-link" to="/">
+                  Home
+                </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/about">About Us</Link>
+                <Link className="nav-link" to="/about">
+                  About Us
+                </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/events">Events</Link>
+                <Link className="nav-link" to="/events">
+                  Events
+                </Link>
               </li>
               {/* <li className="nav-item">
                 <Link className="nav-link" to="/register">Register</Link>
@@ -91,6 +100,11 @@ export default function Navbar() {
 
               {user ? (
                 <>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/dashboard">
+                      📊 Dashboard
+                    </Link>
+                  </li>
                   <li className="nav-item">
                     <span className="nav-link nav-profile">
                       {user.email?.split("@")[0]}
@@ -107,7 +121,9 @@ export default function Navbar() {
                 </>
               ) : (
                 <li className="nav-item">
-                  <Link className="nav-link" to="/login">Login</Link>
+                  <Link className="nav-link" to="/login">
+                    Login
+                  </Link>
                 </li>
               )}
             </ul>
