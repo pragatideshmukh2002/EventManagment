@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // ⬅️ Import navigate
 import {
   getAllEvents,
   getUpcomingEvents,
@@ -12,6 +13,15 @@ export default function EventDashboard() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+
+  // 🔐 Admin access check
+  useEffect(() => {
+    const adminToken = localStorage.getItem("adminToken");
+    if (!adminToken) {
+      navigate("/admin/login"); // Redirect if not admin
+    }
+  }, [navigate]);
 
   useEffect(() => {
     loadEvents();

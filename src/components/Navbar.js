@@ -120,11 +120,31 @@ export default function Navbar() {
                   </li>
                 </>
               ) : (
-                <li className="nav-item">
-                  <Link className="nav-link" to="/login">
-                    Login
-                  </Link>
-                </li>
+                <li className="nav-item dropdown">
+  <a
+    className="nav-link dropdown-toggle"
+    href="#"
+    id="loginDropdown"
+    role="button"
+    data-bs-toggle="dropdown"
+    aria-expanded="false"
+  >
+    Login
+  </a>
+  <ul className="dropdown-menu" aria-labelledby="loginDropdown">
+    <li>
+      <a className="dropdown-item" href="/login">
+        User Login
+      </a>
+    </li>
+    <li>
+      <a className="dropdown-item" href="/admin/login">
+        Admin Login
+      </a>
+    </li>
+  </ul>
+</li>
+
               )}
             </ul>
           </div>

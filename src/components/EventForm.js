@@ -117,15 +117,35 @@ export default function BookingForm() {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    const fieldValue = type === "checkbox" ? checked : value;
+  // const handleChange = (e) => {
+  //   const { name, value, type, checked } = e.target;
+  //   const fieldValue = type === "checkbox" ? checked : value;
 
-    setFormData({
-      ...formData,
+  //   setFormData({
+  //     ...formData,
+  //     [name]: fieldValue,
+  //   });
+  // };
+
+  const handleChange = (e) => {
+  const { name, value, type, checked } = e.target;
+  const fieldValue = type === "checkbox" ? checked : value;
+
+  if (name === "cateringType") {
+    // Set default menuType when cateringType is selected
+    setFormData((prev) => ({
+      ...prev,
       [name]: fieldValue,
-    });
-  };
+      menuType: "basic", // Always default to first option
+    }));
+  } else {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: fieldValue,
+    }));
+  }
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

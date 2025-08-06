@@ -11,6 +11,8 @@ import Eventcards from "./components/Eventcards";
 import EventForm from "./components/EventForm";
 import EventDashboard from "./components/EventDashboard";
 import About from "./components/About";
+import AdminLogin from "./components/AdminLogin";
+import AdminDashboard from "./components/AdminDashboard";
 
 function App() {
   return (
@@ -46,8 +48,12 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+         
               <Route path="/register" element={<Register />} />
+              
+              <Route path="/admin/login" element={<AdminLogin/>} />
               <Route path="/login" element={<Login />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
             </Routes>
           </div>
           {/* <Footer /> */}
