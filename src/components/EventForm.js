@@ -1,5 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import {
+  createEvent,
+  checkDateAvailability,
+  calculateEventAmounts,
+} from "../services/api";
 
 export default function BookingForm() {
   const { eventId } = useParams();
@@ -9,62 +14,120 @@ export default function BookingForm() {
     eventDate: "",
     package: "silver",
     guests: "",
+    venueName: "",
+    venueAddress: "",
+    decoration: "Traditional",
+    cateringRequired: "no",
+    cateringType: "",
+    menuType: "",
+    acceptTerms: false,
     totalAmount: 0,
     finalAmount: 0,
     advance: 0,
     balance: 0,
   });
 
+  const [dateAvailability, setDateAvailability] = useState({
+    checked: false,
+    available: true,
+    message: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+
   const TAX = 18;
 
   const packageRates = {
-    silver: { base: 100000, extra: 50000 },
-    gold: { base: 125000, extra: 70000 },
-    platinum: { base: 150000, extra: 85000 },
+    silver: { base: 100000, extra: 40000 },
+    gold: { base: 150000, extra: 25000 },
+    platinum: { base: 200000, extra: 25000 },
   };
 
-  // ✅ Slab-based total + final + balance calculation
-  const calculateAmounts = (updatedData) => {
-    const guests = parseInt(updatedData.guests || 0);
-    const advance = parseFloat(updatedData.advance || 0);
-    const selectedPackage = updatedData.package;
+  // Check date availability when date changes
+  useEffect(() => {
+    if (formData.eventDate) {
+      checkDateAvailabilityHandler(formData.eventDate);
+    }
+  }, [formData.eventDate]);
 
-    let totalAmount = 0;
+  const checkDateAvailabilityHandler = async (date) => {
+    if (!date) return;
 
-    if (guests > 0) {
-      const { base, extra } = packageRates[selectedPackage];
-      if (guests <= 200) {
-        totalAmount = base;
-      } else {
-        const extraGuests = guests - 200;
-        const extraSlabs = Math.ceil(extraGuests / 200);
-        totalAmount = base + extraSlabs * extra;
-      }
+    setLoading(true);
+    try {
+      const response = await checkDateAvailability(date);
+      const result = response.data;
+
+      setDateAvailability({
+        checked: true,
+        available: result.available,
+        message: result.message,
+      });
+    } catch (error) {
+      console.error("Error checking date availability:", error);
+      setDateAvailability({
+        checked: true,
+        available: false,
+        message: "Error checking date availability. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateAmounts = async () => {
+    if (!formData.guests || formData.guests < 100) {
+      alert("⚠ Minimum 100 guests are required!");
+      return;
     }
 
-    const finalAmount = totalAmount + (totalAmount * TAX) / 100;
-    const balance = finalAmount - advance;
+    setLoading(true);
+    try {
+      const eventData = {
+        customerName: formData.name,
+        eventDate: formData.eventDate,
+        packageType: formData.package,
+        numberOfGuests: parseInt(formData.guests),
+        venueName: formData.venueName,
+        venueAddress: formData.venueAddress,
+        decoration: formData.decoration,
+        cateringRequired: formData.cateringRequired,
+        cateringType: formData.cateringType,
+        menuType: formData.menuType,
+        advanceAmount: parseFloat(formData.advance || 0),
+      };
 
-    return {
-      totalAmount: totalAmount.toFixed(2),
-      finalAmount: finalAmount.toFixed(2),
-      balance: balance.toFixed(2),
-    };
+      const response = await calculateEventAmounts(eventData);
+      const calculatedEvent = response.data.event;
+
+      setFormData((prev) => ({
+        ...prev,
+        totalAmount: calculatedEvent.totalAmount,
+        finalAmount: calculatedEvent.finalAmount,
+        balance: calculatedEvent.balanceAmount,
+      }));
+
+      alert("✅ Amount calculated successfully!");
+    } catch (error) {
+      console.error("Error calculating amounts:", error);
+      alert("❌ Error calculating amounts. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // ✅ Handle input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    const updatedData = { ...formData, [name]: value };
-    const amounts = calculateAmounts(updatedData);
+    const { name, value, type, checked } = e.target;
+    const fieldValue = type === "checkbox" ? checked : value;
+
     setFormData({
-      ...updatedData,
-      ...amounts,
+      ...formData,
+      [name]: fieldValue,
     });
   };
 
-  // ✅ Submit Booking
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (parseInt(formData.guests) < 100) {
@@ -72,9 +135,76 @@ export default function BookingForm() {
       return;
     }
 
-    alert(`✅ Event ${eventId} booked successfully!`);
-    console.log("Booking Data:", formData);
-    // You can later send this data to your Spring Boot API
+    if (!formData.acceptTerms) {
+      alert("⚠ Please accept the terms and conditions to proceed.");
+      return;
+    }
+
+    if (!dateAvailability.available) {
+      alert("⚠ Selected date is not available. Please choose another date.");
+      return;
+    }
+
+    setSubmitLoading(true);
+    try {
+      const eventData = {
+        customerName: formData.name,
+        eventDate: formData.eventDate,
+        packageType: formData.package,
+        numberOfGuests: parseInt(formData.guests),
+        venueName: formData.venueName,
+        venueAddress: formData.venueAddress,
+        decoration: formData.decoration,
+        cateringRequired: formData.cateringRequired,
+        cateringType: formData.cateringType,
+        menuType: formData.menuType,
+        advanceAmount: parseFloat(formData.advance || 0),
+        totalAmount: parseFloat(formData.totalAmount || 0),
+        finalAmount: parseFloat(formData.finalAmount || 0),
+        balanceAmount: parseFloat(formData.balance || 0),
+      };
+
+      const response = await createEvent(eventData);
+
+      if (response.data.success) {
+        alert(`✅ Event ${eventId} booked successfully!`);
+        console.log("Booking Data:", response.data.event);
+        // Reset form or redirect
+        setFormData({
+          name: "",
+          eventDate: "",
+          package: "silver",
+          guests: "",
+          venueName: "",
+          venueAddress: "",
+          decoration: "Traditional",
+          cateringRequired: "no",
+          cateringType: "",
+          menuType: "",
+          acceptTerms: false,
+          totalAmount: 0,
+          finalAmount: 0,
+          advance: 0,
+          balance: 0,
+        });
+        setDateAvailability({
+          checked: false,
+          available: true,
+          message: "",
+        });
+      } else {
+        alert(`❌ ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error("Error creating event:", error);
+      if (error.response?.data?.message) {
+        alert(`❌ ${error.response.data.message}`);
+      } else {
+        alert("❌ Error creating event. Please try again.");
+      }
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   return (
@@ -107,26 +237,31 @@ export default function BookingForm() {
           <input
             name="eventDate"
             type="date"
-            className="form-control"
+            className={`form-control ${
+              dateAvailability.checked && !dateAvailability.available
+                ? "is-invalid"
+                : ""
+            }`}
             value={formData.eventDate}
             onChange={handleChange}
             required
           />
-        </div>
-
-        {/* Package */}
-        <div className="mb-3">
-          <label className="fw-semibold">Select Package</label>
-          <select
-            name="package"
-            className="form-control"
-            value={formData.package}
-            onChange={handleChange}
-          >
-            <option value="silver">Silver</option>
-            <option value="gold">Gold</option>
-            <option value="platinum">Platinum</option>
-          </select>
+          {loading && (
+            <div className="mt-1">
+              <small className="text-muted">
+                Checking date availability...
+              </small>
+            </div>
+          )}
+          {dateAvailability.checked && (
+            <div
+              className={`mt-1 ${
+                dateAvailability.available ? "text-success" : "text-danger"
+              }`}
+            >
+              <small>{dateAvailability.message}</small>
+            </div>
+          )}
         </div>
 
         {/* Guests */}
@@ -145,6 +280,127 @@ export default function BookingForm() {
           )}
         </div>
 
+        {/* Package */}
+        <div className="mb-3">
+          <label className="fw-semibold">Select Package</label>
+          <select
+            name="package"
+            className="form-control"
+            value={formData.package}
+            onChange={handleChange}
+          >
+            <option value="silver">Silver</option>
+            <option value="gold">Gold</option>
+            <option value="platinum">Platinum</option>
+          </select>
+        </div>
+
+        {/* Venue */}
+        <div className="mb-3">
+          <label className="fw-semibold">Venue Name</label>
+          <input
+            name="venueName"
+            type="text"
+            className="form-control"
+            value={formData.venueName}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* Address */}
+        <div className="mb-3">
+          <label className="fw-semibold">Venue Address</label>
+          <textarea
+            name="venueAddress"
+            className="form-control"
+            value={formData.venueAddress}
+            onChange={handleChange}
+            required
+          ></textarea>
+        </div>
+
+        {/* Decoration */}
+        <div className="mb-3">
+          <label className="fw-semibold">Decoration Theme</label>
+          <select
+            name="decoration"
+            className="form-control"
+            value={formData.decoration}
+            onChange={handleChange}
+          >
+            <option value="Traditional">Traditional</option>
+            <option value="Modern">Modern</option>
+            <option value="Custom">Custom</option>
+          </select>
+        </div>
+
+        {/* Catering Required */}
+        <div className="mb-3">
+          <label className="fw-semibold">Do you require catering?</label>
+          <select
+            name="cateringRequired"
+            className="form-control"
+            value={formData.cateringRequired}
+            onChange={handleChange}
+          >
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+
+        {/* Catering Type */}
+        {formData.cateringRequired === "yes" && (
+          <>
+            <div className="mb-3">
+              <label className="fw-semibold">Catering Type</label>
+              <select
+                name="cateringType"
+                className="form-control"
+                value={formData.cateringType}
+                onChange={handleChange}
+              >
+                <option value="">-- Select --</option>
+                <option value="veg">Veg</option>
+                <option value="nonveg">Non-Veg</option>
+              </select>
+            </div>
+
+            {/* Menu Type */}
+            {formData.cateringType && (
+              <div className="mb-3">
+                <label className="fw-semibold">
+                  {formData.cateringType === "veg"
+                    ? "Veg Menu Type"
+                    : "Non-Veg Menu Type"}
+                </label>
+                <select
+                  name="menuType"
+                  className="form-control"
+                  value={formData.menuType}
+                  onChange={handleChange}
+                >
+                  {formData.cateringType === "veg" ? (
+                    <>
+                      <option value="basic">Basic (₹600 per guest)</option>
+                      <option value="full">
+                        Full-Fledged (₹900 per guest)
+                      </option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="basic">Basic (₹800 per guest)</option>
+                      <option value="full">
+                        Full-Fledged (₹1200 per guest)
+                      </option>
+                    </>
+                  )}
+                </select>
+              </div>
+            )}
+          </>
+        )}
+
         {/* Advance */}
         <div className="mb-3">
           <label className="fw-semibold">Advance Payment (₹)</label>
@@ -157,16 +413,42 @@ export default function BookingForm() {
           />
         </div>
 
-        {/* Payment Summary */}
+        {/* Calculate Button */}
+        <div className="mb-3">
+          <button
+            type="button"
+            className="btn btn-primary w-100 fw-bold"
+            onClick={calculateAmounts}
+            disabled={loading}
+          >
+            {loading ? "⏳ Calculating..." : "💵 Calculate Amount"}
+          </button>
+        </div>
+
+        {/* Terms */}
+        <div className="form-check mb-3">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="termsCheck"
+            name="acceptTerms"
+            checked={formData.acceptTerms}
+            onChange={handleChange}
+            required
+          />
+          <label className="form-check-label" htmlFor="termsCheck">
+            I agree to the <a href="#!">terms and conditions</a>.
+          </label>
+        </div>
+
+        {/* Summary */}
         <div className="p-3 bg-light rounded-3 my-3">
           <h5 className="fw-bold">💰 Payment Summary</h5>
           <p>
-            <strong>Selected Package:</strong>{" "}
-            {formData.package.charAt(0).toUpperCase() +
-              formData.package.slice(1)}
+            <strong>Package:</strong> {formData.package.toUpperCase()}
           </p>
           <p>
-            <strong>Total Amount (Before Tax):</strong> ₹{formData.totalAmount}
+            <strong>Total Amount:</strong> ₹{formData.totalAmount}
           </p>
           <p>+ Tax (18%)</p>
           <p className="fw-bold text-primary">
@@ -176,8 +458,11 @@ export default function BookingForm() {
           <p className="fw-bold text-danger">Balance: ₹{formData.balance}</p>
         </div>
 
-        <button className="btn btn-success w-100 fw-bold">
-          ✅ Confirm Booking
+        <button
+          className="btn btn-success w-100 fw-bold"
+          disabled={submitLoading || !dateAvailability.available}
+        >
+          {submitLoading ? "⏳ Processing..." : "✅ Confirm Booking"}
         </button>
       </form>
     </div>

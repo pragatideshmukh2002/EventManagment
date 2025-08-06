@@ -9,6 +9,7 @@ import Register from "./components/Register";
 import Login from "./components/Login";
 import Eventcards from "./components/Eventcards";
 import EventForm from "./components/EventForm";
+import EventDashboard from "./components/EventDashboard";
 import About from "./components/About";
 
 function App() {
@@ -34,6 +35,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <EventForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <EventDashboard />
                   </ProtectedRoute>
                 }
               />
