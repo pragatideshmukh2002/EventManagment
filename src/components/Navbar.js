@@ -138,7 +138,7 @@ export default function Navbar() {
       </a>
     </li>
     <li>
-      <a className="dropdown-item" href="/admin/login">
+      <a className="dropdown-item" href="/adminlogin">
         Admin Login
       </a>
     </li>

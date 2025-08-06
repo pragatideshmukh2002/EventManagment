@@ -51,9 +51,9 @@ function App() {
          
               <Route path="/register" element={<Register />} />
               
-              <Route path="/admin/login" element={<AdminLogin/>} />
+              <Route path="/adminlogin" element={<AdminLogin/>} />
               <Route path="/login" element={<Login />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              {/* <Route path="/admin/dashboard" element={<AdminDashboard />} /> */}
             </Routes>
           </div>
           {/* <Footer /> */}

@@ -1,109 +1,293 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // ⬅️ Import navigate
+import {
+  getAllEvents,
+  getUpcomingEvents,
+  getPastEvents,
+  deleteEvent,
+  getEventsByCustomer,
+} from "../services/api";
 
-export default function AdminDashboard() {
+export default function EventDashboard() {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
-  const [adminEmail, setAdminEmail] = useState("");
 
+  // 🔐 Admin access check
   useEffect(() => {
-    const email = localStorage.getItem("adminEmail");
-    const token = localStorage.getItem("adminToken");
-
-    if (!token) {
-      navigate("/admin/login");
-    } else {
-      setAdminEmail(email);
+    const adminToken = localStorage.getItem("adminToken");
+    if (!adminToken) {
+      navigate("/adminlogin"); // Redirect if not admin
     }
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminToken");
-    localStorage.removeItem("adminEmail");
-    navigate("/admin/login");
+  useEffect(() => {
+    loadEvents();
+  }, [filter]);
+
+  const loadEvents = async () => {
+    setLoading(true);
+    try {
+      let response;
+      switch (filter) {
+        case "upcoming":
+          response = await getUpcomingEvents();
+          break;
+        case "past":
+          response = await getPastEvents();
+          break;
+        default:
+          response = await getAllEvents();
+      }
+      setEvents(response.data.events || []);
+    } catch (error) {
+      console.error("Error loading events:", error);
+      alert("Error loading events. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteEvent = async (eventId) => {
+    if (window.confirm("Are you sure you want to delete this event?")) {
+      try {
+        await deleteEvent(eventId);
+        alert("Event deleted successfully!");
+        loadEvents();
+      } catch (error) {
+        console.error("Error deleting event:", error);
+        alert("Error deleting event. Please try again.");
+      }
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      loadEvents();
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await getEventsByCustomer(searchTerm);
+      setEvents(response.data.events || []);
+    } catch (error) {
+      console.error("Error searching events:", error);
+      alert("Error searching events. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+    }).format(amount);
   };
 
   return (
     <div className="container py-5">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="fw-bold">🛠️ Admin Dashboard</h2>
-        <button className="btn btn-danger" onClick={handleLogout}>
-          Logout
-        </button>
-      </div>
+      <h2 className="text-center mb-4 fw-bold">
+        📊 Event Management Dashboard
+      </h2>
 
-      <div className="mb-4">
-        <h5>Welcome, <span className="text-primary">{adminEmail}</span></h5>
-        <p className="text-muted">Here's an overview of your event platform activities.</p>
-      </div>
-
-      {/* Dashboard Summary Cards */}
-      <div className="row g-4">
-        <div className="col-md-4">
-          <div className="card shadow-sm border-0 p-4">
-            <h5>Total Events</h5>
-            <p className="display-6 fw-bold text-success">128</p>
+      {/* Filters and Search */}
+      <div className="row mb-4">
+        <div className="col-md-6">
+          <div className="d-flex gap-2">
+            <select
+              className="form-select"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <option value="all">All Events</option>
+              <option value="upcoming">Upcoming Events</option>
+              <option value="past">Past Events</option>
+            </select>
+            <button
+              className="btn btn-primary"
+              onClick={loadEvents}
+              disabled={loading}
+            >
+              {loading ? "⏳" : "🔄"}
+            </button>
           </div>
         </div>
-
-        <div className="col-md-4">
-          <div className="card shadow-sm border-0 p-4">
-            <h5>Users Registered</h5>
-            <p className="display-6 fw-bold text-info">54</p>
-          </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="card shadow-sm border-0 p-4">
-            <h5>Revenue Generated</h5>
-            <p className="display-6 fw-bold text-warning">₹3.4L</p>
+        <div className="col-md-6">
+          <div className="d-flex gap-2">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by customer name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+            />
+            <button
+              className="btn btn-outline-primary"
+              onClick={handleSearch}
+              disabled={loading}
+            >
+              🔍
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Table Preview (Example) */}
-      <div className="mt-5">
-        <h4 className="mb-3">📋 Recent Event Bookings</h4>
+      {/* Events Table */}
+      {loading ? (
+        <div className="text-center py-5">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      ) : events.length === 0 ? (
+        <div className="text-center py-5">
+          <h4 className="text-muted">No events found</h4>
+        </div>
+      ) : (
         <div className="table-responsive">
-          <table className="table table-striped table-bordered align-middle">
+          <table className="table table-striped table-hover">
             <thead className="table-dark">
               <tr>
-                <th>#</th>
+                <th>ID</th>
                 <th>Customer</th>
                 <th>Event Date</th>
                 <th>Package</th>
-                <th>Amount</th>
+                <th>Guests</th>
+                <th>Venue</th>
+                <th>Final Amount</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>1</td>
-                <td>Amit Verma</td>
-                <td>2025-08-10</td>
-                <td>Gold</td>
-                <td>₹1,75,000</td>
-                <td><span className="badge bg-success">Confirmed</span></td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td>Riya Shah</td>
-                <td>2025-08-12</td>
-                <td>Silver</td>
-                <td>₹1,20,000</td>
-                <td><span className="badge bg-warning text-dark">Pending</span></td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td>Manoj Patil</td>
-                <td>2025-08-15</td>
-                <td>Platinum</td>
-                <td>₹2,50,000</td>
-                <td><span className="badge bg-danger">Cancelled</span></td>
-              </tr>
+              {events.map((event) => (
+                <tr key={event.id}>
+                  <td>{event.id}</td>
+                  <td>{event.customerName}</td>
+                  <td>{formatDate(event.eventDate)}</td>
+                  <td>
+                    <span
+                      className={`badge bg-${
+                        event.packageType === "platinum"
+                          ? "warning"
+                          : event.packageType === "gold"
+                          ? "info"
+                          : "secondary"
+                      }`}
+                    >
+                      {event.packageType.toUpperCase()}
+                    </span>
+                  </td>
+                  <td>{event.numberOfGuests}</td>
+                  <td>
+                    <small className="text-muted">{event.venueName}</small>
+                  </td>
+                  <td>{formatCurrency(event.finalAmount)}</td>
+                  <td>
+                    <span
+                      className={`badge bg-${
+                        event.bookingStatus === "CONFIRMED"
+                          ? "success"
+                          : "warning"
+                      }`}
+                    >
+                      {event.bookingStatus}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="btn-group btn-group-sm">
+                      <button
+                        className="btn btn-outline-info"
+                        onClick={() =>
+                          alert(
+                            `Event Details:\n${JSON.stringify(event, null, 2)}`
+                          )
+                        }
+                        title="View Details"
+                      >
+                        👁️
+                      </button>
+                      <button
+                        className="btn btn-outline-danger"
+                        onClick={() => handleDeleteEvent(event.id)}
+                        title="Delete Event"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
-      </div>
+      )}
+
+      {/* Summary Stats */}
+      {events.length > 0 && (
+        <div className="row mt-4">
+          <div className="col-md-3">
+            <div className="card bg-primary text-white">
+              <div className="card-body text-center">
+                <h5 className="card-title">Total Events</h5>
+                <h3>{events.length}</h3>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="card bg-success text-white">
+              <div className="card-body text-center">
+                <h5 className="card-title">Total Revenue</h5>
+                <h3>
+                  {formatCurrency(
+                    events.reduce(
+                      (sum, event) => sum + parseFloat(event.finalAmount || 0),
+                      0
+                    )
+                  )}
+                </h3>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="card bg-info text-white">
+              <div className="card-body text-center">
+                <h5 className="card-title">Avg. Guests</h5>
+                <h3>
+                  {Math.round(
+                    events.reduce(
+                      (sum, event) => sum + (event.numberOfGuests || 0),
+                      0
+                    ) / events.length
+                  )}
+                </h3>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="card bg-warning text-white">
+              <div className="card-body text-center">
+                <h5 className="card-title">Platinum Events</h5>
+                <h3>
+                  {
+                    events.filter((event) => event.packageType === "platinum")
+                      .length
+                  }
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
