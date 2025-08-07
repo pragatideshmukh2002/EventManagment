@@ -5,43 +5,43 @@ const About = () => {
   return (
     <div className="bg-light">
       {/* Hero Section */}
-     <div
-  className="position-relative text-white text-center py-5"
-  style={{
-    minHeight: "60vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "column",
-    overflow: "hidden",
-  }}
->
-  {/* Blurred Background Layer */}
-  <div
-    style={{
-      backgroundImage: `url(${process.env.PUBLIC_URL + "/images/aboutus.jpg"})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-      backgroundAttachment: "fixed",
-      filter: "blur(4px)",
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      zIndex: 1,
-    }}
-  />
+      <div
+        className="position-relative text-white text-center py-5"
+        style={{
+          minHeight: "60vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        {/* Blurred Background Layer */}
+        <div
+          style={{
+            backgroundImage: `url(${process.env.PUBLIC_URL + "/images/aboutus.jpg"})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundAttachment: "fixed",
+            filter: "blur(4px)",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 1,
+          }}
+        />
 
-  {/* Foreground Content */}
-  <div style={{ position: "relative", zIndex: 2 }}>
-    <h1 className="display-4 fw-bold">Welcome to EventHub</h1>
-    <p className="lead">Crafting unforgettable moments, one event at a time.</p>
-  </div>
-</div>
+        {/* Foreground Content */}
+        <div style={{ position: "relative", zIndex: 2 }}>
+          <h1 className="display-4 fw-bold">Welcome to EventHub</h1>
+          <p className="lead">Crafting unforgettable moments, one event at a time.</p>
+        </div>
+      </div>
 
-       
+
       {/* About Section */}
       <div className="container py-5">
         <div className="row align-items-center">

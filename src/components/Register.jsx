@@ -56,9 +56,8 @@ export default function Register() {
     <div
       className="container-fluid d-flex justify-content-center align-items-center position-relative"
       style={{
-        backgroundImage: `url(${
-          process.env.PUBLIC_URL + "/images/registrationbackground.jpg"
-        })`,
+        backgroundImage: `url(${process.env.PUBLIC_URL + "/images/registrationbackground.jpg"
+          })`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         minHeight: "100vh",
@@ -134,9 +133,8 @@ export default function Register() {
                   onChange={(e) =>
                     setFormData({ ...formData, [field.id]: e.target.value })
                   }
-                  className={`form-control rounded-3 ${
-                    errors[field.id] ? "is-invalid" : ""
-                  }`}
+                  className={`form-control rounded-3 ${errors[field.id] ? "is-invalid" : ""
+                    }`}
                   style={{ padding: "10px", fontSize: "15px" }}
                   disabled={loading}
                 />
@@ -155,9 +153,8 @@ export default function Register() {
                 onChange={(e) =>
                   setFormData({ ...formData, address: e.target.value })
                 }
-                className={`form-control rounded-3 ${
-                  errors.address ? "is-invalid" : ""
-                }`}
+                className={`form-control rounded-3 ${errors.address ? "is-invalid" : ""
+                  }`}
                 style={{ padding: "10px", fontSize: "15px" }}
                 disabled={loading}
               ></textarea>
@@ -175,9 +172,8 @@ export default function Register() {
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
-                className={`form-control rounded-3 ${
-                  errors.password ? "is-invalid" : ""
-                }`}
+                className={`form-control rounded-3 ${errors.password ? "is-invalid" : ""
+                  }`}
                 style={{ padding: "10px", fontSize: "15px" }}
                 disabled={loading}
               />
@@ -203,8 +199,8 @@ export default function Register() {
                     "linear-gradient(135deg, #00f2fe, #4facfe)")
                 }
                 onMouseOut={(e) =>
-                  (e.target.style.background =
-                    "linear-gradient(135deg, #4facfe, #00f2fe)")
+                (e.target.style.background =
+                  "linear-gradient(135deg, #4facfe, #00f2fe)")
                 }
                 disabled={loading}
               >

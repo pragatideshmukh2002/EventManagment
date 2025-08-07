@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // ⬅️ Import navigate
+import { useNavigate } from "react-router-dom";
 import {
   getAllEvents,
   getUpcomingEvents,
@@ -15,11 +15,10 @@ export default function EventDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  // 🔐 Admin access check
   useEffect(() => {
     const adminToken = localStorage.getItem("adminToken");
     if (!adminToken) {
-      navigate("/adminlogin"); // Redirect if not admin
+      navigate("/adminlogin");
     }
   }, [navigate]);
 
@@ -94,14 +93,12 @@ export default function EventDashboard() {
 
   return (
     <div className="container py-5">
-      <h2 className="text-center mb-4 fw-bold">
-        📊 Event Management Dashboard
-      </h2>
+      <h2 className="text-center mb-4 fw-bold">📊 Event Management Dashboard</h2>
 
       {/* Filters and Search */}
-      <div className="row mb-4">
-        <div className="col-md-6">
-          <div className="d-flex gap-2">
+      <div className="row g-3 mb-4">
+        <div className="col-lg-6">
+          <div className="input-group">
             <select
               className="form-select"
               value={filter}
@@ -112,23 +109,25 @@ export default function EventDashboard() {
               <option value="past">Past Events</option>
             </select>
             <button
-              className="btn btn-primary"
+              className="btn btn-outline-secondary"
               onClick={loadEvents}
               disabled={loading}
+              title="Reload"
             >
               {loading ? "⏳" : "🔄"}
             </button>
           </div>
         </div>
-        <div className="col-md-6">
-          <div className="d-flex gap-2">
+
+        <div className="col-lg-6">
+          <div className="input-group">
             <input
               type="text"
               className="form-control"
               placeholder="Search by customer name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             />
             <button
               className="btn btn-outline-primary"
@@ -144,7 +143,7 @@ export default function EventDashboard() {
       {/* Events Table */}
       {loading ? (
         <div className="text-center py-5">
-          <div className="spinner-border" role="status">
+          <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
         </div>
@@ -154,35 +153,34 @@ export default function EventDashboard() {
         </div>
       ) : (
         <div className="table-responsive">
-          <table className="table table-striped table-hover">
-            <thead className="table-dark">
+          <table className="table table-hover table-bordered align-middle">
+            <thead className="table-dark text-center">
               <tr>
                 <th>ID</th>
                 <th>Customer</th>
-                <th>Event Date</th>
+                <th>Date</th>
                 <th>Package</th>
                 <th>Guests</th>
                 <th>Venue</th>
-                <th>Final Amount</th>
+                <th>Amount</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {events.map((event) => (
-                <tr key={event.id}>
+                <tr key={event.id} className="text-center">
                   <td>{event.id}</td>
                   <td>{event.customerName}</td>
                   <td>{formatDate(event.eventDate)}</td>
                   <td>
                     <span
-                      className={`badge bg-${
-                        event.packageType === "platinum"
-                          ? "warning"
-                          : event.packageType === "gold"
+                      className={`badge bg-${event.packageType === "platinum"
+                        ? "warning"
+                        : event.packageType === "gold"
                           ? "info"
                           : "secondary"
-                      }`}
+                        }`}
                     >
                       {event.packageType.toUpperCase()}
                     </span>
@@ -194,32 +192,29 @@ export default function EventDashboard() {
                   <td>{formatCurrency(event.finalAmount)}</td>
                   <td>
                     <span
-                      className={`badge bg-${
-                        event.bookingStatus === "CONFIRMED"
-                          ? "success"
-                          : "warning"
-                      }`}
+                      className={`badge bg-${event.bookingStatus === "CONFIRMED"
+                        ? "success"
+                        : "danger"
+                        }`}
                     >
                       {event.bookingStatus}
                     </span>
                   </td>
                   <td>
-                    <div className="btn-group btn-group-sm">
+                    <div className="d-flex gap-2 justify-content-center">
                       <button
-                        className="btn btn-outline-info"
+                        className="btn btn-sm btn-outline-info"
                         onClick={() =>
-                          alert(
-                            `Event Details:\n${JSON.stringify(event, null, 2)}`
-                          )
+                          alert(`Event Details:\n${JSON.stringify(event, null, 2)}`)
                         }
-                        title="View Details"
+                        title="View"
                       >
                         👁️
                       </button>
                       <button
-                        className="btn btn-outline-danger"
+                        className="btn btn-sm btn-outline-danger"
                         onClick={() => handleDeleteEvent(event.id)}
-                        title="Delete Event"
+                        title="Delete"
                       >
                         🗑️
                       </button>
@@ -232,19 +227,20 @@ export default function EventDashboard() {
         </div>
       )}
 
-      {/* Summary Stats */}
+      {/* Summary Cards */}
       {events.length > 0 && (
-        <div className="row mt-4">
-          <div className="col-md-3">
-            <div className="card bg-primary text-white">
+        <div className="row g-3 mt-4">
+          <div className="col-md-6 col-lg-3">
+            <div className="card text-white bg-primary h-100">
               <div className="card-body text-center">
                 <h5 className="card-title">Total Events</h5>
                 <h3>{events.length}</h3>
               </div>
             </div>
           </div>
-          <div className="col-md-3">
-            <div className="card bg-success text-white">
+
+          <div className="col-md-6 col-lg-3">
+            <div className="card text-white bg-success h-100">
               <div className="card-body text-center">
                 <h5 className="card-title">Total Revenue</h5>
                 <h3>
@@ -258,8 +254,9 @@ export default function EventDashboard() {
               </div>
             </div>
           </div>
-          <div className="col-md-3">
-            <div className="card bg-info text-white">
+
+          <div className="col-md-6 col-lg-3">
+            <div className="card text-white bg-info h-100">
               <div className="card-body text-center">
                 <h5 className="card-title">Avg. Guests</h5>
                 <h3>
@@ -273,8 +270,9 @@ export default function EventDashboard() {
               </div>
             </div>
           </div>
-          <div className="col-md-3">
-            <div className="card bg-warning text-white">
+
+          <div className="col-md-6 col-lg-3">
+            <div className="card text-white bg-warning h-100">
               <div className="card-body text-center">
                 <h5 className="card-title">Platinum Events</h5>
                 <h3>

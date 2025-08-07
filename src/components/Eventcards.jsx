@@ -50,13 +50,13 @@ export default function EventCards() {
   return (
     <div id="eventcards-container" className="container py-5">
       {/* ✅ Animated Gradient Heading */}
-    <h1
-  id="eventcards-heading"
-  className="text-center mb-5 fw-bold display-5 animated-gradient-text"
-   // 🔹 This line adds space from top
->
-  Choose Your Event
-</h1>
+      <h1
+        id="eventcards-heading"
+        className="text-center mb-5 fw-bold display-5 animated-gradient-text"
+      // 🔹 This line adds space from top
+      >
+        Choose Your Event
+      </h1>
       <div id="eventcards-row" className="row g-4 justify-content-center">
         {events.map((event) => (
           <div key={event.id} id={`eventcard-col-${event.id}`} className="col-md-6 col-lg-6">

@@ -67,7 +67,7 @@ function Home() {
         </section>
 
         {/* 🔹 About Us Section */}
-        <section id="about-us" className="py-5 mt-3 bg-white">
+        {/* <section id="about-us" className="py-5 mt-3 bg-white">
           <div className="container">
             <h2 className="text-center mb-4">ABOUT US</h2>
             <div className="row align-items-center">
@@ -92,7 +92,7 @@ function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* 🔹 CSS Styles */}
         <style>{`

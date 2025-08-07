@@ -13,6 +13,7 @@ import EventDashboard from "./components/EventDashboard";
 import About from "./components/About";
 import AdminLogin from "./components/AdminLogin";
 import AdminDashboard from "./components/AdminDashboard";
+import PaymentPage from "./components/PaymentPage";
 
 function App() {
   return (
@@ -48,12 +49,22 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-         
+
               <Route path="/register" element={<Register />} />
-              
-              <Route path="/adminlogin" element={<AdminLogin/>} />
               <Route path="/login" element={<Login />} />
-              {/* <Route path="/admin/dashboard" element={<AdminDashboard />} /> */}
+              <Route path="/adminlogin" element={<AdminLogin />} />
+
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute adminOnly={true}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              {/* import PaymentPage from "./components/PaymentPage"; */}
+
+              <Route path="/payment" element={<PaymentPage />} />
             </Routes>
           </div>
           {/* <Footer /> */}
