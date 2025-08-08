@@ -23,8 +23,15 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     // Find all confirmed events on a specific date
     List<Event> findByEventDateAndBookingStatus(LocalDate eventDate, String bookingStatus);
     
-    // Find all events for a customer
+    // Find all events for a customer by name
     List<Event> findByCustomerNameOrderByEventDateDesc(String customerName);
+    
+    // Find all events for a customer by email
+    List<Event> findByCustomerEmailOrderByEventDateDesc(String customerEmail);
+    
+    // Find all events for a customer by email (including null/empty emails)
+    @Query("SELECT e FROM Event e WHERE (e.customerEmail = :customerEmail OR e.customerEmail IS NULL OR e.customerEmail = '') ORDER BY e.eventDate DESC")
+    List<Event> findByCustomerEmailOrNullOrderByEventDateDesc(@Param("customerEmail") String customerEmail);
     
     // Find all events within a date range
     @Query("SELECT e FROM Event e WHERE e.eventDate BETWEEN :startDate AND :endDate ORDER BY e.eventDate")

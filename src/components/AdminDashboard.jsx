@@ -702,6 +702,8 @@ export default function AdminDashboard() {
     return new Date(dateString).toLocaleDateString();
   };
 
+
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -716,21 +718,22 @@ export default function AdminDashboard() {
         <div className="col-md-2 bg-dark text-white vh-100 p-3">
           <h4>Admin Panel</h4>
           <hr />
+          <h6>Event Filters</h6>
           <div className="d-grid gap-2">
             <button
-              className={`btn btn-dark ${filter === "all" ? "bg-secondary" : ""}`}
+              className={`btn btn-sm btn-dark ${filter === "all" ? "bg-secondary" : ""}`}
               onClick={() => setFilter("all")}
             >
               📋 All Events
             </button>
             <button
-              className={`btn btn-dark ${filter === "upcoming" ? "bg-secondary" : ""}`}
+              className={`btn btn-sm btn-dark ${filter === "upcoming" ? "bg-secondary" : ""}`}
               onClick={() => setFilter("upcoming")}
             >
               ⏳ Upcoming Events
             </button>
             <button
-              className={`btn btn-dark ${filter === "past" ? "bg-secondary" : ""}`}
+              className={`btn btn-sm btn-dark ${filter === "past" ? "bg-secondary" : ""}`}
               onClick={() => setFilter("past")}
             >
               🕓 Past Events
@@ -766,7 +769,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Events Table */}
+                    {/* Events Table */}
           {loading ? (
             <div className="text-center py-5">
               <div className="spinner-border text-primary" role="status">
@@ -782,74 +785,74 @@ export default function AdminDashboard() {
               <div className="table-responsive">
                 <table className="table table-hover table-bordered align-middle">
                  <thead className="table-dark text-center">
-  <tr>
-    <th>ID</th>
-    <th>Booking Title</th>   {/* <-- Added this */}
-    <th>Customer</th>
-    <th>Date</th>
-    <th>Package</th>
-    <th>Guests</th>
-    <th>Venue</th>
-    <th>Amount</th>
-    <th>Status</th>
-    <th>Actions</th>
-  </tr>
-</thead>
-<tbody>
-  {events.map((event) => (
-    <tr key={event.id} className="text-center">
-      <td>{event.id}</td>
-      <td>{event.bookingFormTitle || "-"}</td>   {/* <-- Added this */}
-      <td>{event.customerName}</td>
-      <td>{formatDate(event.eventDate)}</td>
-      <td>
-        <span
-          className={`badge bg-${
-            event.packageType === "platinum"
-              ? "warning"
-              : event.packageType === "gold"
-              ? "info"
-              : "secondary"
-          }`}
-        >
-          {event.packageType.toUpperCase()}
-        </span>
-      </td>
-      <td>{event.numberOfGuests}</td>
-      <td>
-        <small className="text-muted">{event.venueName}</small>
-      </td>
-      <td>{formatCurrency(event.finalAmount)}</td>
-      <td>
-        <span
-          className={`badge bg-${
-            event.bookingStatus === "CONFIRMED" ? "success" : "danger"
-          }`}
-        >
-          {event.bookingStatus}
-        </span>
-      </td>
-      <td>
-        <div className="d-flex gap-2 justify-content-center">
-          <button
-            className="btn btn-sm btn-outline-info"
-            onClick={() =>
-              alert(`Event Details:\n${JSON.stringify(event, null, 2)}`)
-            }
-          >
-            👁️ View
-          </button>
-          <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={() => handleDeleteEvent(event.id)}
-          >
-            🗑️ Delete
-          </button>
-        </div>
-      </td>
+    <tr>
+      <th>ID</th>
+      <th>Booking Title</th>
+      <th>Customer</th>
+      <th>Date</th>
+      <th>Package</th>
+      <th>Guests</th>
+      <th>Venue</th>
+      <th>Amount</th>
+      <th>Status</th>
+      <th>Actions</th>
     </tr>
-  ))}
-</tbody>
+  </thead>
+  <tbody>
+    {events.map((event) => (
+      <tr key={event.id} className="text-center">
+        <td>{event.id}</td>
+        <td>{event.bookingFormTitle || "-"}</td>
+        <td>{event.customerName}</td>
+        <td>{formatDate(event.eventDate)}</td>
+        <td>
+          <span
+            className={`badge bg-${
+              event.packageType === "platinum"
+                ? "warning"
+                : event.packageType === "gold"
+                ? "info"
+                : "secondary"
+            }`}
+          >
+            {event.packageType.toUpperCase()}
+          </span>
+        </td>
+        <td>{event.numberOfGuests}</td>
+        <td>
+          <small className="text-muted">{event.venueName}</small>
+        </td>
+        <td>{formatCurrency(event.finalAmount)}</td>
+        <td>
+          <span
+            className={`badge bg-${
+              event.bookingStatus === "CONFIRMED" ? "success" : "danger"
+            }`}
+          >
+            {event.bookingStatus}
+          </span>
+        </td>
+        <td>
+          <div className="d-flex gap-2 justify-content-center">
+            <button
+              className="btn btn-sm btn-outline-info"
+              onClick={() =>
+                alert(`Event Details:\n${JSON.stringify(event, null, 2)}`)
+              }
+            >
+              👁️ View
+            </button>
+            <button
+              className="btn btn-sm btn-outline-danger"
+              onClick={() => handleDeleteEvent(event.id)}
+            >
+              🗑️ Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+    ))}
+  </tbody>
 
                 </table>
               </div>

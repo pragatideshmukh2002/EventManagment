@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -138,6 +139,31 @@ public class EventService {
         return eventRepository.findByCustomerNameOrderByEventDateDesc(customerName);
     }
     
+    // Get events by customer email
+    public List<Event> getEventsByCustomerEmail(String customerEmail) {
+        System.out.println("=== DEBUG: EventService.getEventsByCustomerEmail ===");
+        System.out.println("Searching for email: " + customerEmail);
+        
+        try {
+            // First try to find events with the exact email
+            List<Event> events = eventRepository.findByCustomerEmailOrderByEventDateDesc(customerEmail);
+            System.out.println("Found " + events.size() + " events with exact email match");
+            
+            // If no events found, try to find events with null/empty email (for backward compatibility)
+            if (events.isEmpty()) {
+                System.out.println("No exact matches found, trying null/empty email search...");
+                events = eventRepository.findByCustomerEmailOrNullOrderByEventDateDesc(customerEmail);
+                System.out.println("Found " + events.size() + " events with null/empty email");
+            }
+            
+            return events;
+        } catch (Exception e) {
+            System.err.println("ERROR in EventService.getEventsByCustomerEmail: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
     // Get upcoming events
     public List<Event> getUpcomingEvents() {
         return eventRepository.findUpcomingEvents(LocalDate.now());
@@ -170,6 +196,7 @@ public class EventService {
         
         // Update fields
         existingEvent.setCustomerName(updatedEvent.getCustomerName());
+        existingEvent.setCustomerEmail(updatedEvent.getCustomerEmail());
         existingEvent.setEventDate(updatedEvent.getEventDate());
         existingEvent.setPackageType(updatedEvent.getPackageType());
         existingEvent.setNumberOfGuests(updatedEvent.getNumberOfGuests());
@@ -217,5 +244,21 @@ public class EventService {
         }
         
         return response;
+    }
+    
+    // Update existing events with customerEmail (for migration)
+    public void updateExistingEventsWithEmail() {
+        List<Event> eventsWithoutEmail = eventRepository.findAll().stream()
+            .filter(event -> event.getCustomerEmail() == null || event.getCustomerEmail().isEmpty())
+            .collect(Collectors.toList());
+        
+        for (Event event : eventsWithoutEmail) {
+            // Set a default email based on customer name or use a placeholder
+            String defaultEmail = event.getCustomerName() != null ? 
+                event.getCustomerName().toLowerCase().replaceAll("\\s+", "") + "@example.com" : 
+                "unknown@example.com";
+            event.setCustomerEmail(defaultEmail);
+            eventRepository.save(event);
+        }
     }
 } 

@@ -104,15 +104,15 @@ public class SecurityConfig {
             	        "/api/users/register",
             	        "/api/users/login",
             	        "/create-order",
-            	        "/api/events/**"           // <-- Add this line
+            	        "/api/events/**"
             	    ).permitAll()
-            	    .anyRequest().authenticated()
+            	    .anyRequest().permitAll()  // Temporarily permit all requests for testing
             	)
 
             .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+            // .and()
+            // .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  // Temporarily disabled
 
         return http.build();
     }

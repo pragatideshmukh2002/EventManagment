@@ -79,6 +79,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import UserProtectedRoute from "./components/UserProtectedRoute";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./components/Home";
@@ -92,6 +93,7 @@ import AdminLogin from "./components/AdminLogin";
 import AdminDashboard from "./components/AdminDashboard";
 import PaymentPage from "./components/PaymentPage";
 
+
 function App() {
   return (
     <AuthProvider>
@@ -103,21 +105,15 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
 
-              <Route
-                path="/events"
-                element={
-                  <ProtectedRoute>
-                    <Eventcards />
-                  </ProtectedRoute>
-                }
-              />
+              {/* Make events page public */}
+              <Route path="/events" element={<Eventcards />} />
 
               <Route
                 path="/event-form/:type"
                 element={
-                  <ProtectedRoute>
+                  <UserProtectedRoute>
                     <EventForm />
-                  </ProtectedRoute>
+                  </UserProtectedRoute>
                 }
               />
 
@@ -143,7 +139,7 @@ function App() {
                 }
               />
 
-              <Route path="/payment" element={<PaymentPage />} />
+                             <Route path="/payment" element={<PaymentPage />} />
             </Routes>
           </div>
           {/* <Footer /> */}

@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -40,6 +41,15 @@ public class UserService {
         
         // Encode password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        
+        // Set default role if not provided
+        if (user.getRole() == null) {
+            user.setRole("user");
+        }
+        
+        // Set creation timestamp
+        user.setCreatedAt(java.time.LocalDateTime.now());
+        
         return userRepository.save(user);
     }
 
@@ -82,5 +92,39 @@ public class UserService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    // Method to get all users
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    // Method to delete a user
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Prevent deletion of admin users
+        if ("admin".equals(user.getRole())) {
+            throw new RuntimeException("Cannot delete admin users");
+        }
+        
+        userRepository.deleteById(id);
+    }
+
+    // Method to create an admin user (for testing)
+    public User createAdminUser(String email, String password, String firstName, String lastName) {
+        User adminUser = new User();
+        adminUser.setEmail(email);
+        adminUser.setPassword(password);
+        adminUser.setFirstName(firstName);
+        adminUser.setLastName(lastName);
+        adminUser.setRole("admin");
+        adminUser.setCreatedAt(java.time.LocalDateTime.now());
+        
+        // Encode password
+        adminUser.setPassword(passwordEncoder.encode(adminUser.getPassword()));
+        
+        return userRepository.save(adminUser);
     }
 }

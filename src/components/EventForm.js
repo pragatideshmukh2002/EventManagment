@@ -912,8 +912,9 @@
 //     </div>
 //   );
 // }
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { UserAuthContext } from "../context/UserAuthContext";
 import {
   createEvent,
   checkDateAvailability,
@@ -924,6 +925,7 @@ export default function EventForm() {
   const { type: eventId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useContext(UserAuthContext);
 
   // Get event title from navigation state or fallback to eventId
   const eventTitle = location.state?.title || eventId;
@@ -997,6 +999,7 @@ export default function EventForm() {
     try {
       const eventData = {
         customerName: formData.name,
+        customerEmail: user?.email || "",
         eventDate: formData.eventDate,
         packageType: formData.package,
         numberOfGuests: parseInt(formData.guests),
@@ -1069,6 +1072,7 @@ export default function EventForm() {
       const eventData = {
         bookingFormTitle: formData.bookingFormTitle,
         customerName: formData.name,
+        customerEmail: user?.email || "",
         eventDate: formData.eventDate,
         packageType: formData.package,
         numberOfGuests: parseInt(formData.guests),

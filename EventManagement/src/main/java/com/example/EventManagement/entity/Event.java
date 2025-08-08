@@ -24,6 +24,9 @@ public class Event {
 
     private String customerName;
     
+    @Column(name = "customer_email")
+    private String customerEmail;
+    
     @Column(name = "event_date", nullable = false)
     private LocalDate eventDate;
     
@@ -66,6 +69,14 @@ public class Event {
     
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+    
+    public String getCustomerEmail() {
+        return customerEmail;
+    }
+    
+    public void setCustomerEmail(String customerEmail) {
+        this.customerEmail = customerEmail;
     }
     
     public LocalDate getEventDate() {

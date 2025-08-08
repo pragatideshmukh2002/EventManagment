@@ -17,6 +17,8 @@ public class User {
     private String email;
     private String address;
     private String password;
+    private String role = "user"; // Default role is user
+    private java.time.LocalDateTime createdAt;
 
     // Getters and Setters for each field
 
@@ -74,5 +76,21 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password; // Sets the password
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public java.time.LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(java.time.LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

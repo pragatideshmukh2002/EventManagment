@@ -179,7 +179,7 @@
 // }
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { UserAuthContext } from "../context/UserAuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const events = [
@@ -312,7 +312,7 @@ const styles = {
 
 export default function EventCards() {
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { user } = useContext(UserAuthContext);
 
   const [hoveredCard, setHoveredCard] = React.useState(null);
   const [btnHover, setBtnHover] = React.useState(null);
@@ -320,7 +320,7 @@ export default function EventCards() {
   const handleCardClick = (event) => {
     if (!user) {
       localStorage.setItem("pendingEventType", event.type);
-      navigate("/login");
+      navigate("/login", { state: { from: { pathname: "/event-form/" + event.type } } });
     } else {
       navigate(`/event-form/${event.type}`, { state: { title: event.title } });
     }
@@ -368,6 +368,10 @@ export default function EventCards() {
                 }}
                 onMouseEnter={() => setBtnHover(event.id)}
                 onMouseLeave={() => setBtnHover(null)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCardClick(event);
+                }}
               >
                 Book Now
               </button>

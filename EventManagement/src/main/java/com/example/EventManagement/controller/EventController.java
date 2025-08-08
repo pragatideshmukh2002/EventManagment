@@ -2,6 +2,7 @@ package com.example.EventManagement.controller;
 
 import com.example.EventManagement.entity.Event;
 import com.example.EventManagement.service.EventService;
+import com.example.EventManagement.repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/events")
@@ -17,6 +19,9 @@ public class EventController {
 
     @Autowired
     private EventService eventService;
+    
+    @Autowired
+    private EventRepository eventRepository;
 
     // Check date availability
     @GetMapping("/check-date/{date}")
@@ -70,7 +75,7 @@ public class EventController {
         }
     }
 
-    // Get events by customer name
+        // Get events by customer name
     @GetMapping("/customer/{customerName}")
     public ResponseEntity<?> getEventsByCustomer(@PathVariable String customerName) {
         List<Event> events = eventService.getEventsByCustomer(customerName);
@@ -80,7 +85,120 @@ public class EventController {
             "count", events.size()
         ));
     }
-
+    
+    // Test endpoint to verify backend is working
+    @GetMapping("/test")
+    public ResponseEntity<?> testEndpoint() {
+        System.out.println("=== TEST ENDPOINT CALLED ===");
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Backend is working!",
+            "timestamp", System.currentTimeMillis()
+        ));
+    }
+    
+    // Debug endpoint to check all events in database
+    @GetMapping("/debug/all-events")
+    public ResponseEntity<?> getAllEventsDebug() {
+        System.out.println("=== DEBUG: Getting all events ===");
+        List<Event> allEvents = eventService.getAllEvents();
+        System.out.println("Total events in database: " + allEvents.size());
+        
+        for (Event event : allEvents) {
+            System.out.println("Event ID: " + event.getId() + 
+                             ", Customer: " + event.getCustomerName() + 
+                             ", Email: " + event.getCustomerEmail() + 
+                             ", Date: " + event.getEventDate());
+        }
+        
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "totalEvents", allEvents.size(),
+            "events", allEvents
+        ));
+    }
+    
+    // Create test event for debugging
+    @PostMapping("/debug/create-test-event")
+    public ResponseEntity<?> createTestEvent() {
+        System.out.println("=== DEBUG: Creating test event ===");
+        try {
+            Event testEvent = new Event();
+            testEvent.setCustomerName("Vedant Nandokar");
+            testEvent.setCustomerEmail("vedantnandokar3@gmail.com");
+            testEvent.setEventDate(LocalDate.now().plusDays(30));
+            testEvent.setPackageType("gold");
+            testEvent.setNumberOfGuests(150);
+            testEvent.setVenueName("Test Venue");
+            testEvent.setVenueAddress("Test Address");
+            testEvent.setDecoration("yes");
+            testEvent.setCateringRequired("yes");
+            testEvent.setCateringType("veg");
+            testEvent.setMenuType("basic");
+            testEvent.setAdvanceAmount(new java.math.BigDecimal("50000"));
+            
+            eventService.calculateEventAmounts(testEvent);
+            Event savedEvent = eventRepository.save(testEvent);
+            
+            System.out.println("Test event created with ID: " + savedEvent.getId());
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Test event created successfully",
+                "eventId", savedEvent.getId()
+            ));
+        } catch (Exception e) {
+            System.err.println("ERROR creating test event: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "Error creating test event: " + e.getMessage()
+            ));
+        }
+    }
+    
+    // Get events by customer email
+    @GetMapping("/customer-email/{customerEmail}")
+    public ResponseEntity<?> getEventsByCustomerEmail(@PathVariable String customerEmail) {
+        System.out.println("=== DEBUG: Customer Email Endpoint Called ===");
+        System.out.println("Customer Email: " + customerEmail);
+        
+        try {
+            List<Event> events = eventService.getEventsByCustomerEmail(customerEmail);
+            System.out.println("Found " + events.size() + " events for email: " + customerEmail);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "events", events,
+                "count", events.size()
+            ));
+        } catch (Exception e) {
+            System.err.println("ERROR in getEventsByCustomerEmail: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "Internal server error: " + e.getMessage()
+            ));
+        }
+    }
+    
+    // Migration endpoint to update existing events with customerEmail
+    @PostMapping("/migrate-customer-email")
+    public ResponseEntity<?> migrateCustomerEmail() {
+        try {
+            eventService.updateExistingEventsWithEmail();
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Migration completed successfully"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Migration failed: " + e.getMessage()
+            ));
+        }
+    }
+    
     // Get upcoming events
     @GetMapping("/upcoming")
     public ResponseEntity<?> getUpcomingEvents() {

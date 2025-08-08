@@ -268,20 +268,20 @@ export default function Navbar() {
                     </button>
                   </li>
                 </>
-              ): user ? (
-                // User UI
-                <>
-                  <li className="nav-item">
-                    <span className="nav-link nav-profile">
-                      {user.email?.split("@")[0]}
-                    </span>
-                  </li>
-                  <li className="nav-item">
-                    <button className="btn btn-sm btn-outline-light" onClick={handleLogout}>
-                      Logout
-                    </button>
-                  </li>
-                </>
+                             ): user ? (
+                 // User UI
+                 <>
+                   <li className="nav-item">
+                     <span className="nav-link nav-profile">
+                       {user.email?.split("@")[0]}
+                     </span>
+                   </li>
+                   <li className="nav-item">
+                     <button className="btn btn-sm btn-outline-light" onClick={handleLogout}>
+                       Logout
+                     </button>
+                   </li>
+                 </>
               ) : (
                 // No user logged in
                 <li className="nav-item dropdown">
