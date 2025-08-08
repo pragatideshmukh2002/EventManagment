@@ -134,7 +134,7 @@ export default function PaymentPage() {
   };
 
   // UPI Payment details
-  const upiId = "yourupiid@bank"; // Apna UPI ID yahan daalein
+  const upiId = "960409635@ybl"; // Apna UPI ID yahan daalein
   // QR code generate karne ke liye UPI payment URL (amount dynamically add kiya gaya)
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=${upiId}&pn=YourCompanyName&am=${bookingData.balanceAmount}`;
 

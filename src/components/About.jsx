@@ -36,7 +36,7 @@ const About = () => {
 
         {/* Foreground Content */}
         <div style={{ position: "relative", zIndex: 2 }}>
-          <h1 className="display-4 fw-bold">Welcome to EventHub</h1>
+          <h1 className="display-4 fw-bold">Welcome to EventManagement</h1>
           <p className="lead">Crafting unforgettable moments, one event at a time.</p>
         </div>
       </div>
@@ -48,7 +48,7 @@ const About = () => {
           <div className="col-md-6 mb-4">
             <h2>ABOUT US</h2>
             <p>
-              At <strong>EventHub</strong>, we specialize in transforming ideas
+              At <strong>EventManagement</strong>, we specialize in transforming ideas
               into remarkable experiences. Whether it's a romantic wedding, an
               energetic birthday party, or a professional corporate event — we
               ensure perfection in every detail.
@@ -69,46 +69,7 @@ const About = () => {
         </div>
       </div>
 
-      {/* Services Section */}
-      <div className="bg-white py-5">
-        <div className="container text-center">
-          <h3 className="mb-5">What We Do Best</h3>
-          <div className="row g-4">
-            {[
-              {
-                title: "Weddings",
-                icon: "💍",
-                desc: "Elegant and memorable wedding experiences.",
-              },
-              {
-                title: "Birthdays",
-                icon: "🎉",
-                desc: "Fun-filled birthday parties for all ages.",
-              },
-              {
-                title: "Corporate Events",
-                icon: "🏢",
-                desc: "Professional and seamless business events.",
-              },
-              {
-                title: "Cultural Events",
-                icon: "🎭",
-                desc: "Showcasing art and heritage with grace.",
-              },
-            ].map((item, index) => (
-              <div className="col-md-3 col-sm-6" key={index}>
-                <div className="card border-0 shadow h-100">
-                  <div className="card-body text-center">
-                    <div style={{ fontSize: "2.5rem" }}>{item.icon}</div>
-                    <h5 className="mt-3">{item.title}</h5>
-                    <p className="text-muted">{item.desc}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+     
 
       {/* Contact Info Section */}
       <div className="bg-dark text-white py-5">

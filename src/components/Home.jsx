@@ -66,34 +66,6 @@ function Home() {
           </div>
         </section>
 
-        {/* 🔹 About Us Section */}
-        {/* <section id="about-us" className="py-5 mt-3 bg-white">
-          <div className="container">
-            <h2 className="text-center mb-4">ABOUT US</h2>
-            <div className="row align-items-center">
-              <div className="col-md-6 mb-4 mb-md-0">
-                <img
-                  src={process.env.PUBLIC_URL + "/images/aboutus.jpg"}
-                  alt="About Event"
-                  className="img-fluid rounded shadow"
-                />
-              </div>
-              <div className="col-md-6">
-                <p className="mb-3">
-                  <strong>We are your one-stop destination for flawless events.</strong> 
-                  Whether it's a dreamy wedding, a fun-filled birthday, or a formal corporate event, 
-                  we manage it all with creativity and precision.
-                </p>
-                <p className="mb-3">
-                  From selecting the venue to the final guest leaving, we handle every detail.
-                  Our passionate team works behind the scenes so you can enjoy the spotlight.
-                </p>
-                <p className="fw-bold">✨ Let’s make your next event unforgettable!</p>
-              </div>
-            </div>
-          </div>
-        </section> */}
-
         {/* 🔹 CSS Styles */}
         <style>{`
           .btn-get-started {

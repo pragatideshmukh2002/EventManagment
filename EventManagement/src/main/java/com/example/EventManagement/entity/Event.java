@@ -11,7 +11,17 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+    @Column(name = "booking_form_title")
+    private String bookingFormTitle;
+
+    public String getBookingFormTitle() {
+        return bookingFormTitle;
+    }
+
+    public void setBookingFormTitle(String bookingFormTitle) {
+        this.bookingFormTitle = bookingFormTitle;
+    }
+
     private String customerName;
     
     @Column(name = "event_date", nullable = false)

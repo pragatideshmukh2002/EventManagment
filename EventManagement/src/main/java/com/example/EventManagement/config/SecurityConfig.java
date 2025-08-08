@@ -100,10 +100,15 @@ public class SecurityConfig {
             .cors().and()
             .csrf().disable()
             .authorizeHttpRequests(authz -> authz
-                // Added "/create-order" here to allow access without authentication
-                .requestMatchers("/api/users/register", "/api/users/login", "/create-order").permitAll()
-                .anyRequest().authenticated()
-            )
+            	    .requestMatchers(
+            	        "/api/users/register",
+            	        "/api/users/login",
+            	        "/create-order",
+            	        "/api/events/**"           // <-- Add this line
+            	    ).permitAll()
+            	    .anyRequest().authenticated()
+            	)
+
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
